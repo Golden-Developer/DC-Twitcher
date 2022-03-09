@@ -47,27 +47,8 @@ public class Discord {
         return EmbedColor;
     }
 
-    public static String RoleIDReactionOne = "818069147887730709";
-    public static String RoleIDReactionTwo = "818069146579107861";
-    public static String RoleIDReactionThree = "854738856695955496";
-    public static String MessageIDReactionOne = "882705304528236604";
-    public static String MessageIDReactionTwo = "882705351730946079";
-    public static String MessageIDReactionThree = "882705373583261726";
-    public static String StreamNotify = "818069147887730709";
-    public static String DcS = "817500165866782770";
-    public static long SrStreamMod = 838085319777058826L;
-    public static long StreamMod = 817662438802718781L;
-    public static long Streamer = 817662233537806367L;
-    public static long Member = 817663656937914369L;
-    public static String StreamerString = "817662233537806367";
-    public static String SrStreamModString = "838085319777058826";
-    public static String StreamModString = "817662438802718781";
-    public static long _Coho04_ = 513306244371447828L;
-    public static String DC_EINGANGSHALLE_TEXTCHANNEL = "817500165866782772";
-    public static String DC_MELDUNGEN_TEXTCHANNEL = "870739853539704863";
-    public static String DC_SUPPORT_TEXTCHANNEL = "826515837174415360";
-    public static long loTS = 817859069880696882L;
+    public static String StreamNotifyChannel = "818069147887730709";
+    public static String StreamNotifyRole = "818069147887730709";
 
-
-    //TODO: MYSQL: GUILD NOTIFYCHANNEL NOTIFYROLE
+    //TODO: MYSQL: GUILD  StreamNotifyChannelID StreamNotifyRoleID
 }
