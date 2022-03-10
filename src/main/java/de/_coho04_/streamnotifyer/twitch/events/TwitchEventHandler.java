@@ -2,15 +2,11 @@ package de._coho04_.streamnotifyer.twitch.events;
 
 import com.github.philippheuer.events4j.simple.domain.EventSubscriber;
 import com.github.theholywaffle.teamspeak3.api.ChannelProperty;
-import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
-import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.twitch4j.chat.events.channel.*;
 import com.github.twitch4j.events.*;
 import com.github.twitch4j.helix.domain.SubscriptionEvent;
 import com.github.twitch4j.pubsub.events.ChannelPointsRedemptionEvent;
 import de._coho04_.streamnotifyer.Main;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
 
 public class TwitchEventHandler {
 
@@ -37,17 +33,6 @@ public class TwitchEventHandler {
                 }
             }
         }*/
-
-        if (e.getStream().getGameName().equalsIgnoreCase("Just Chatting")) {
-            Main.getTwitter().getClient().postTweet("Ich bin nun Live Auf Twitch schau gerne vorbei \n" +
-                    "Wir reden über Zeuges \n" +
-                    "https://twitch.tv/" + e.getChannel().getName());
-        } else {
-            Main.getTwitter().getClient().postTweet("Ich bin nun Live auf Twitch schau gerne vorbei \n" +
-                    "Wir spielen: " + e.getStream().getGameName() + "\n" +
-                    "https://twitch.tv/" + e.getChannel().getName());
-        }
-
 /*        if (e.getChannel().getName().equalsIgnoreCase("coho04_")) {
             if (!Main.getTeamSpeak().getBot().getChannelInfo(20).getName().equalsIgnoreCase(TsID.StreamStatusRoom + " Online")) {
                 Main.getTeamSpeak().getBot().editChannel(20, ChannelProperty.CHANNEL_NAME, TsID.StreamStatusRoom + " Online");

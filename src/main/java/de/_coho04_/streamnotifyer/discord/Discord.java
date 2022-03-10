@@ -12,7 +12,6 @@ import java.awt.*;
 
 public class Discord {
 
-    //Discord
     private JDA Bot;
     private final Color EmbedColor;
 
@@ -46,9 +45,4 @@ public class Discord {
     public Color getEmbedColor() {
         return EmbedColor;
     }
-
-    public static String StreamNotifyChannel = "818069147887730709";
-    public static String StreamNotifyRole = "818069147887730709";
-
-    //TODO: MYSQL: GUILD  StreamNotifyChannelID StreamNotifyRoleID
 }

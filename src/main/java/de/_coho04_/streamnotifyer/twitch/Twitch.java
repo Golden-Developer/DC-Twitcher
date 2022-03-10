@@ -37,10 +37,14 @@ public class Twitch {
         channels.add("ReyOa");
 
         for (String channel : channels) {
-            twitchClient.getClientHelper().enableStreamEventListener(channel);
-            if (!twitchClient.getChat().isChannelJoined(channel)) {
-                twitchClient.getChat().joinChannel(channel);
-            }
+           addChannel(channel);
+        }
+    }
+
+    public void addChannel(String channel) {
+        twitchClient.getClientHelper().enableStreamEventListener(channel);
+        if (!twitchClient.getChat().isChannelJoined(channel)) {
+            twitchClient.getChat().joinChannel(channel);
         }
     }
 
