@@ -6,7 +6,9 @@ import com.github.twitch4j.chat.events.channel.*;
 import com.github.twitch4j.events.*;
 import com.github.twitch4j.helix.domain.SubscriptionEvent;
 import com.github.twitch4j.pubsub.events.ChannelPointsRedemptionEvent;
+import de._coho04_.streamnotifyer.Bots;
 import de._coho04_.streamnotifyer.Main;
+import de._coho04_.streamnotifyer.teamspeak.TeamSpeak;
 
 public class TwitchEventHandler {
 
@@ -97,7 +99,7 @@ public class TwitchEventHandler {
     @EventSubscriber
     public void onChannelChangeGame(ChannelChangeGameEvent e) {
         if (e.getChannel().getName().equalsIgnoreCase("coho04_")) {
-            Main.getTeamSpeak().getBot().editChannel(21, ChannelProperty.CHANNEL_NAME, "[cspacer][Game]: " + e.getStream().getGameName());
+            Bots.getTeamSpeak().getBot().editChannel(21, ChannelProperty.CHANNEL_NAME, "[cspacer][Game]: " + e.getStream().getGameName());
         }
     }
 
@@ -114,8 +116,8 @@ public class TwitchEventHandler {
 
     @EventSubscriber
     public static void onChannelFollowCountUpdate(ChannelFollowCountUpdateEvent e) {
-        if (!Main.getTeamSpeak().getBot().getChannelInfo(80).getName().equals("[cspacer][Follower]: " + e.getFollowCount())) {
-            Main.getTeamSpeak().getBot().editChannel(80, ChannelProperty.CHANNEL_NAME, "[cspacer][Follower]: " + e.getFollowCount());
+        if (!Bots.getTeamSpeak().getBot().getChannelInfo(80).getName().equals("[cspacer][Follower]: " + e.getFollowCount())) {
+            Bots.getTeamSpeak().getBot().editChannel(80, ChannelProperty.CHANNEL_NAME, "[cspacer][Follower]: " + e.getFollowCount());
         }
     }
 }
