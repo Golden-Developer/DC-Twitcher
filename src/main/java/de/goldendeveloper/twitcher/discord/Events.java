@@ -21,7 +21,7 @@ public class Events extends ListenerAdapter {
             if (cmd.equalsIgnoreCase(Discord.cmdSettings)) {
                 String subCmd = e.getSubcommandName();
                 if (subCmd != null) {
-                    if (subCmd.equalsIgnoreCase(Discord.cmdSettingsSubChannel)) {
+                    if (subCmd.equalsIgnoreCase(Discord.cmdSettingsSubRole)) {
                         OptionMapping mapping = e.getOption(Discord.cmdSettingsSubRoleOptionRole);
                         if (mapping != null) {
                             Role role = mapping.getAsRole();
@@ -51,7 +51,7 @@ public class Events extends ListenerAdapter {
                                 }
                             }
                         }
-                    } else if (subCmd.equalsIgnoreCase(Discord.cmdSettingsSubRole)) {
+                    } else if (subCmd.equalsIgnoreCase(Discord.cmdSettingsSubChannel)) {
                         OptionMapping mapping = e.getOption(Discord.cmdSettingsSubChannelOptionChannel);
                         if (mapping != null) {
                             TextChannel channel = mapping.getAsTextChannel();
