@@ -1,7 +1,9 @@
-package de._coho04_.streamnotifyer.discord;
+package de.goldendeveloper.twitcher.discord;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -14,6 +16,15 @@ public class Discord {
 
     private JDA Bot;
     private final Color EmbedColor;
+
+    public static String cmdSettings = "settings";
+    public static String cmdStart = "start";
+    public static String cmdSettingsSubRole = "twitchinfo";
+    public static String cmdSettingsSubTwitchChannel = "twitchchannel";
+    public static String cmdSettingsSubTwitchChannelOptionName = "channelname";
+    public static String cmdSettingsSubChannel = "infochannel";
+    public static String cmdSettingsSubChannelOptionChannel = "channel";
+    public static String cmdSettingsSubRoleOptionRole = "role";
 
     public Discord(String Token) {
         try {
@@ -31,8 +42,15 @@ public class Discord {
                             GatewayIntent.GUILD_MESSAGE_TYPING)
                     .addEventListeners()
                     .setAutoReconnect(true)
-                    .build();
-        } catch (LoginException e) {
+                    .build().awaitReady();
+            Bot.upsertCommand(cmdStart, "Startet den " + Bot.getSelfUser().getName() + "!" ).queue();
+            Bot.upsertCommand(cmdSettings, "Stellt den " + Bot.getSelfUser().getName() + " ein!" )
+                    .addSubcommands(
+                            new SubcommandData(cmdSettingsSubChannel, "Setzte den Info Channel für deine Twitch Live Streams").addOption(OptionType.CHANNEL, cmdSettingsSubChannelOptionChannel,"Twitch Benachrichtigungs Channel", true),
+                            new SubcommandData(cmdSettingsSubTwitchChannel, "Speichert deinen Twitch Channel Namen").addOption(OptionType.CHANNEL, cmdSettingsSubTwitchChannelOptionName,"Twitch Channel Name", true),
+                            new SubcommandData(cmdSettingsSubRole, "Setzt die Rolle für die Stream Benachrichtigung").addOption(OptionType.ROLE, cmdSettingsSubRoleOptionRole, "Twitch Info Rolle", true)
+                    ).queue();
+        } catch (LoginException | InterruptedException e) {
             e.printStackTrace();
         }
         this.EmbedColor = new Color(100, 65, 164);
