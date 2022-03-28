@@ -1,0 +1,17 @@
+<login>
+    <MYSQL>
+        <Hostname>138.201.202.3</Hostname>
+        <Username>DC-Twitcher</Username>
+        <Password>Cr8vkxHnQ(cv[fO2</Password>
+        <Port>3306</Port>
+    </MYSQL>
+    <Discord>
+        <Token>OTU1NzgwOTQ3MzUyMTE3Mjky.YjmqXw.2NnFHbXW5jRnmaDRyTfIEjG71tM</Token>
+        <Webhook>https://discord.com/api/webhooks/957737386165563482/9vo30g6HVlIj6C24r6Sjs-X-bADlKFbN1xwmaihn1PYzZLBcwFTt5QeLMG80JISu1vjM</Webhook>
+    </Discord>
+    <Twitch>
+        <ClientID>ump0s3ipyhfpgcwe7p4pwqidt9gxj4</ClientID>
+        <ClientSecret>two2hg1dcfmzn215hppq0rwm5a8j05</ClientSecret>
+        <Credinal>x7yrxq8nigh7pevju2h40ozankitlm</Credinal>
+    </Twitch>
+</login>

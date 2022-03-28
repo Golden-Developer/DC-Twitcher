@@ -1,0 +1,17 @@
+<login>
+    <MYSQL>
+        <Hostname>HOSTNAME</Hostname>
+        <Username>USERNAME</Username>
+        <Password>PASSWORD</Password>
+        <Port>PORT</Port>
+    </MYSQL>
+    <Discord>
+        <Token>TOKEN</Token>
+        <Webhook>WEBHOOK</Webhook>
+    </Discord>
+    <Twitch>
+        <ClientID>CLIENTID</ClientID>
+        <ClientSecret>CLIENTSCRET</ClientSecret>
+        <Credinal>CREDINAL</Credinal>
+    </Twitch>
+</login>

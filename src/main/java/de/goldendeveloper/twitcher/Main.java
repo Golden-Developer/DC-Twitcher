@@ -1,6 +1,5 @@
 package de.goldendeveloper.twitcher;
 
-
 import de.goldendeveloper.mysql.MYSQL;
 import de.goldendeveloper.twitcher.discord.Discord;
 import de.goldendeveloper.twitcher.mysql.CreateMysql;
@@ -11,13 +10,15 @@ public class Main {
     private static Discord discord;
     private static Twitch twitch;
     private static MYSQL mysql;
+    private static Config config;
 
     public static String dbName = "Twitcher";
     public static String tableName = "Twitcher";
 
     public static void main(String[] args) {
-        CreateMysql.createMYSQL(ID.MysqlHostname, ID.MysqlPort, ID.MysqlUsername, ID.MysqlPassword);
-        discord = new Discord(ID.DiscordBotToken);
+        config = new Config();
+        CreateMysql.createMYSQL(config.getMysqlHostname(), config.getMysqlPort(), config.getMysqlUsername(), config.getMysqlPassword());
+        discord = new Discord(config.getDiscordToken());
         twitch = new Twitch();
     }
 
@@ -33,5 +34,9 @@ public class Main {
     }
     public static MYSQL getMysql() {
         return mysql;
+    }
+
+    public static Config getConfig() {
+        return config;
     }
 }

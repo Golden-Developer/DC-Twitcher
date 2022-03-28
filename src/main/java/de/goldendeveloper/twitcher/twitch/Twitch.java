@@ -5,7 +5,7 @@ import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import de.goldendeveloper.mysql.entities.Table;
-import de.goldendeveloper.twitcher.ID;
+import de.goldendeveloper.twitcher.Config;
 import de.goldendeveloper.twitcher.Main;
 import de.goldendeveloper.twitcher.mysql.CreateMysql;
 import de.goldendeveloper.twitcher.twitch.events.TwitchEventHandler;
@@ -18,11 +18,11 @@ public class Twitch {
     private OAuth2Credential credential;
 
     public Twitch() {
-        credential = new OAuth2Credential("twitch", ID.credinal);
+        credential = new OAuth2Credential("twitch", Main.getConfig().getTwitchCredinal());
         try {
             twitchClient = TwitchClientBuilder.builder()
-                    .withClientId(ID.TwitchClientID)
-                    .withClientSecret(ID.TwitchClientSecret)
+                    .withClientId(Main.getConfig().getTwitchClientID())
+                    .withClientSecret(Main.getConfig().getTwitchClientSecret())
                     .withChatAccount(credential)
                     .withDefaultAuthToken(credential)
                     .withEnableChat(true)
@@ -58,6 +58,7 @@ public class Twitch {
                 }
             }
         }
+        System.out.println("Twitch gestartet");
     }
 
     public void addChannel(String channel) {
