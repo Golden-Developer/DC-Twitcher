@@ -41,6 +41,8 @@ public class Config {
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(inputStream);
             doc.getDocumentElement().normalize();
+
+            /* *** MYSQL *** */
             NodeList list = doc.getElementsByTagName("MYSQL");
             for (int i = 0; i < list.getLength(); i++) {
                 if (list.item(i).getNodeType() == Node.ELEMENT_NODE) {
@@ -63,6 +65,8 @@ public class Config {
                     }
                 }
             }
+
+            /* *** Discord *** */
             list = doc.getElementsByTagName("Discord");
             for (int i = 0; i < list.getLength(); i++) {
                 if (list.item(i).getNodeType() == Node.ELEMENT_NODE) {
@@ -79,7 +83,6 @@ public class Config {
             }
 
             /* *** Twitch *** */
-
             list = doc.getElementsByTagName("Twitch");
             for (int i = 0; i < list.getLength(); i++) {
                 if (list.item(i).getNodeType() == Node.ELEMENT_NODE) {
