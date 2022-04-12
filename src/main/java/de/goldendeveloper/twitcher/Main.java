@@ -17,7 +17,7 @@ public class Main {
 
     public static void main(String[] args) {
         config = new Config();
-        CreateMysql.createMYSQL(config.getMysqlHostname(), config.getMysqlPort(), config.getMysqlUsername(), config.getMysqlPassword());
+        new CreateMysql(config.getMysqlHostname(), config.getMysqlPort(), config.getMysqlUsername(), config.getMysqlPassword());
         discord = new Discord(config.getDiscordToken());
         twitch = new Twitch();
     }

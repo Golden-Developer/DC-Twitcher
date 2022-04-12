@@ -39,7 +39,6 @@ public class TwitchEventHandler {
                                             .setImage("https://static-cdn.jtvnw.net/previews-ttv/live_user_" + e.getChannel().getName() + "-1920x1080.png")
                                             .setDescription("Spielt nun " + e.getStream().getGameName() + " für " + e.getStream().getViewerCount() + " Zuschauern! \n" +
                                                     "[Schau vorbei](https://twitch.tv/" + e.getChannel().getName() + ")")
-                                            //.setTimestamp(DiscordBot.date)
                                             .setFooter("@Golden-Developer")
                                             .build();
                                     channel.sendMessage(role.getAsMention() + " ist nun Live auf Twitch!").setEmbeds(embed).queue();
@@ -72,17 +71,8 @@ public class TwitchEventHandler {
         Main.getTwitch().getBot().getChat().sendMessage(e.getChannel().getName(), "Herzlichen Glückwunsch, " + e.getUser().getName() + " zu deinem Abo! Vielen Dank!<3");
     }
 
-
     @EventSubscriber
     public void onDonation(DonationEvent e) {
         e.getTwitchChat().sendMessage(e.getChannel().getName(), String.format("%s hat gespendet %s, Vielen Dank! <3", e.getUser().getName(), e.getAmount()));
     }
-
-    //@EventSubscriber
-    //public void onChannelPointsRedemption(ChannelPointsRedemptionEvent e) {
-    //}
-
-    //@EventSubscriber
-    //public static void onChannelFollowCountUpdate(ChannelFollowCountUpdateEvent e) {
-    //}
 }

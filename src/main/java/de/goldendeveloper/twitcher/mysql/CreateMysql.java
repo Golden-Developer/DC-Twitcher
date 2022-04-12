@@ -16,7 +16,7 @@ public class CreateMysql {
     public static String colmDcStreamNotifyRole = "DcStreamNotifyRoleID";
     public static String colmTwitchChannel = "TwitchChannel";
 
-    public static void createMYSQL(String hostname, int port, String username, String password) {
+    public CreateMysql(String hostname, int port, String username, String password) {
         Main.setMysql(new MYSQL(hostname, username, password, port));
         if (!Main.getMysql().existsDatabase(Main.dbName)) {
             Main.getMysql().createDatabase(Main.dbName);
