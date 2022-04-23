@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Twitcher" />
         <module name="StreamNotifyer" />
+        <module name="DC-Twitcher" />
       </profile>
     </annotationProcessing>
   </component>

@@ -22,11 +22,10 @@ public class Discord {
     private final Color EmbedColor;
 
     public static String cmdSettings = "settings";
-    public static String cmdStart = "start";
-    public static String cmdSettingsSubRole = "twitchinfo";
-    public static String cmdSettingsSubTwitchChannel = "twitchchannel";
+    public static String cmdSettingsSubRole = "twitch-info-role";
+    public static String cmdSettingsSubTwitchChannel = "twitch-info-channel";
     public static String cmdSettingsSubTwitchChannelOptionName = "channelname";
-    public static String cmdSettingsSubChannel = "infochannel";
+    public static String cmdSettingsSubChannel = "discord-info-channel";
     public static String cmdSettingsSubChannelOptionChannel = "channel";
     public static String cmdSettingsSubRoleOptionRole = "role";
 
@@ -47,27 +46,19 @@ public class Discord {
                     .addEventListeners()
                     .setAutoReconnect(true)
                     .build().awaitReady();
-            Bot.upsertCommand(cmdStart, "Startet den " + Bot.getSelfUser().getName() + "!" ).queue();
             Bot.upsertCommand(cmdSettings, "Stellt den " + Bot.getSelfUser().getName() + " ein!" )
                     .addSubcommands(
-                            new SubcommandData(cmdSettingsSubChannel, "Setzte den Info Channel für deine Twitch Live Streams").addOption(OptionType.CHANNEL, cmdSettingsSubChannelOptionChannel,"Twitch Benachrichtigungs Channel", true),
-                            new SubcommandData(cmdSettingsSubTwitchChannel, "Speichert deinen Twitch Channel Namen").addOption(OptionType.CHANNEL, cmdSettingsSubTwitchChannelOptionName,"Twitch Channel Name", true),
+                            new SubcommandData(cmdSettingsSubChannel, "Setzte den Info Channel für deine Twitch Live Streams").addOption(OptionType.CHANNEL, cmdSettingsSubChannelOptionChannel,"Twitch Benachrichtigung Channel", true),
+                            new SubcommandData(cmdSettingsSubTwitchChannel, "Speichert deinen Twitch Channel Namen").addOption(OptionType.STRING, cmdSettingsSubTwitchChannelOptionName,"Twitch Channel Name", true),
                             new SubcommandData(cmdSettingsSubRole, "Setzt die Rolle für die Stream Benachrichtigung").addOption(OptionType.ROLE, cmdSettingsSubRoleOptionRole, "Twitch Info Rolle", true)
                     ).queue();
-            Online();
+            if (!System.getProperty("os.name").split(" ")[0].equalsIgnoreCase("windows")) {
+                Online();
+            }
         } catch (LoginException | InterruptedException e) {
             e.printStackTrace();
         }
         this.EmbedColor = new Color(100, 65, 164);
-    }
-
-    public void sendErrorMessage(String Error) {
-        WebhookEmbedBuilder embed = new WebhookEmbedBuilder();
-        embed.setAuthor(new WebhookEmbed.EmbedAuthor(getBot().getSelfUser().getName(), getBot().getSelfUser().getAvatarUrl(), "https://Golden-Developer.de"));
-        embed.addField(new WebhookEmbed.EmbedField(false, "[ERROR]", Error));
-        embed.setColor(0xFF0000);
-        embed.setFooter(new WebhookEmbed.EmbedFooter("@Golden-Developer", getBot().getSelfUser().getAvatarUrl()));
-        new WebhookClientBuilder(Main.getConfig().getDiscordWebhook()).build().send(embed.build());
     }
 
     public JDA getBot() {

@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
@@ -51,13 +52,13 @@ public class Events extends ListenerAdapter {
                                                     .with(CreateMysql.colmDcStreamNotifyRole, role.getId())
                                                     .with(CreateMysql.colmTwitchChannel, "")
                                             );
-                                            e.getInteraction().reply("Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!").queue();
+                                            isAvailable(e,"Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!");
                                         } else {
                                             HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId());
                                             int id = Integer.parseInt(row.get("id").toString());
                                             if (row.containsKey(CreateMysql.colmDcStreamNotifyRole) && !row.get(CreateMysql.colmDcStreamNotifyRole).toString().isEmpty()) {
                                                 table.getColumn(CreateMysql.colmDcStreamNotifyRole).set(role.getId(), id);
-                                                e.getInteraction().reply("Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!").queue();
+                                                isAvailable(e,"Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!");
                                             } else {
                                                 e.getInteraction().reply("Die neue Stream Info Rolle kann nicht die alte Stream Info Rolle sein!").queue();
                                             }
@@ -82,13 +83,13 @@ public class Events extends ListenerAdapter {
                                                         .with(CreateMysql.colmDcStreamNotifyRole, "")
                                                         .with(CreateMysql.colmTwitchChannel, "")
                                                 );
-                                                e.getInteraction().reply("Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!").queue();
+                                                isAvailable(e,"Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!");
                                             } else {
                                                 HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId());
                                                 int id = Integer.parseInt(row.get("id").toString());
                                                 if (row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && !row.get(CreateMysql.colmDcStreamNotifyChannel).toString().isEmpty()) {
                                                     table.getColumn(CreateMysql.colmDcStreamNotifyChannel).set(channel.getId(), id);
-                                                    e.getInteraction().reply("Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!").queue();
+                                                    isAvailable(e,"Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!");
                                                 } else {
                                                     e.getInteraction().reply("Der neue Stream Info Channel kann nicht der alte Stream Info Channel sein!").queue();
                                                 }
@@ -113,13 +114,13 @@ public class Events extends ListenerAdapter {
                                                     .with(CreateMysql.colmDcStreamNotifyRole, "")
                                                     .with(CreateMysql.colmTwitchChannel, TwChannel)
                                             );
-                                            e.getInteraction().reply("Der neue Twitch Channel ist nun " + TwChannel + "!").queue();
+                                            isAvailable(e,"Der neue Twitch Channel ist nun " + TwChannel + "!");
                                         } else {
                                             HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId());
                                             int id = Integer.parseInt(row.get("id").toString());
                                             if (row.containsKey(CreateMysql.colmTwitchChannel) && !row.get(CreateMysql.colmTwitchChannel).toString().isEmpty()) {
                                                 table.getColumn(CreateMysql.colmTwitchChannel).set(TwChannel, id);
-                                                e.getInteraction().reply("Der neue Twitch Channel ist nun " + TwChannel + "!").queue();
+                                                isAvailable(e,"Der neue Twitch Channel ist nun " + TwChannel + "!");
                                             } else {
                                                 e.getInteraction().reply("Der neue Twitch Channel kann nicht der alte Twitch Channel sein!").queue();
                                             }
@@ -130,30 +131,44 @@ public class Events extends ListenerAdapter {
                         }
                     }
                 }
-            } else if (cmd.equalsIgnoreCase(Discord.cmdStart)) {
-                if (Main.getMysql().existsDatabase(Main.dbName)) {
-                    if (Main.getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
-                        Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
-                        if (table.existsColumn(CreateMysql.colmDcServer)) {
-                            if (table.getColumn(CreateMysql.colmDcServer).getAll().contains(e.getGuild().getId())) {
-                                HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId());
-                                if (row.containsKey(CreateMysql.colmTwitchChannel) && row.containsKey(CreateMysql.colmDcStreamNotifyRole) && row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && row.containsKey(CreateMysql.colmTwitchChannel)) {
-                                    String TwChannel = row.get(CreateMysql.colmTwitchChannel).toString();
-                                    String DcChannel = row.get(CreateMysql.colmDcStreamNotifyChannel).toString();
-                                    String DcRole = row.get(CreateMysql.colmDcStreamNotifyRole).toString();
-                                    if (!TwChannel.isEmpty()) {
-                                        if (!DcChannel.isEmpty()) {
-                                            if (!DcRole.isEmpty()) {
-                                                Main.getTwitch().addChannel(TwChannel);
-                                            } else {
-                                                e.getInteraction().reply("Die Stream Info Rolle fehlt bitte setzte eine mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubRole + "!").queue();
-                                            }
-                                        } else {
-                                            e.getInteraction().reply("Der Stream Info Channel fehlt bitte setzte einen mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubChannel + "!").queue();
-                                        }
+            }
+        }
+    }
+
+    public void isAvailable(SlashCommandInteractionEvent e, @Nullable String success) {
+        if (Main.getMysql().existsDatabase(Main.dbName)) {
+            if (Main.getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
+                Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
+                if (table.existsColumn(CreateMysql.colmDcServer)) {
+                    if (table.getColumn(CreateMysql.colmDcServer).getAll().contains(e.getGuild().getId())) {
+                        HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId());
+                        if (row.containsKey(CreateMysql.colmTwitchChannel) && row.containsKey(CreateMysql.colmDcStreamNotifyRole) && row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && row.containsKey(CreateMysql.colmTwitchChannel)) {
+                            String TwChannel = row.get(CreateMysql.colmTwitchChannel).toString();
+                            String DcChannel = row.get(CreateMysql.colmDcStreamNotifyChannel).toString();
+                            String DcRole = row.get(CreateMysql.colmDcStreamNotifyRole).toString();
+                            if (!TwChannel.isEmpty()) {
+                                if (!DcChannel.isEmpty()) {
+                                    if (!DcRole.isEmpty()) {
+                                        Main.getTwitch().addChannel(TwChannel);
                                     } else {
-                                        e.getInteraction().reply("Der Twitch Channel fehlt bitte setzte einen mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubTwitchChannel + "!").queue();
+                                        if (success != null) {
+                                            e.getInteraction().reply(success + "\nDie Stream Info Rolle fehlt bitte setzte eine mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubRole + "!").queue();
+                                        } else {
+                                            e.getInteraction().reply("Die Stream Info Rolle fehlt bitte setzte eine mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubRole + "!").queue();
+                                        }
                                     }
+                                } else {
+                                    if (success != null) {
+                                        e.getInteraction().reply(success + "\nDer Stream Info Channel fehlt bitte setzte einen mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubChannel + "!").queue();
+                                    } else {
+                                        e.getInteraction().reply("Der Stream Info Channel fehlt bitte setzte einen mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubChannel + "!").queue();
+                                    }
+                                }
+                            } else {
+                                if (success != null) {
+                                    e.getInteraction().reply(success + "\nDer Twitch Channel fehlt bitte setzte einen mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubTwitchChannel + "!").queue();
+                                } else {
+                                    e.getInteraction().reply("Der Twitch Channel fehlt bitte setzte einen mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubTwitchChannel + "!").queue();
                                 }
                             }
                         }
@@ -162,4 +177,15 @@ public class Events extends ListenerAdapter {
             }
         }
     }
+
+
+    /*
+    *  /settings discord-info-channel <TextChannel/NewsChannel>
+    *  /settings twitch-info-channel <String>
+    *  /settings twitch-info-role <Role>
+    *
+    * onTwitch
+    * Twitch Channel Namens
+    *
+    * */
 }
