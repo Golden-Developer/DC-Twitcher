@@ -22,7 +22,7 @@ public class TwitchEventHandler {
             if (Main.getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
                 Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
                 if (table.existsColumn(CreateMysql.colmDcServer) && table.existsColumn(CreateMysql.colmTwitchChannel)) {
-                    HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmTwitchChannel), e.getChannel().getName());
+                    HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmTwitchChannel), e.getChannel().getName()).get();
                     if (row.containsKey(CreateMysql.colmTwitchChannel) && row.containsKey(CreateMysql.colmDcStreamNotifyRole) && row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && row.containsKey(CreateMysql.colmTwitchChannel)) {
                         System.out.println("ERROR 5");
                         Guild guild = Main.getDiscord().getBot().getGuildById(row.get(CreateMysql.colmDcServer).toString());
@@ -91,7 +91,7 @@ public class TwitchEventHandler {
     private String sendDiscordInvite(String channel) {
         Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
         if (table.getColumn(CreateMysql.colmTwitchChannel).getAll().contains(channel)) {
-            HashMap<String, Object> row = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName).getRow(table.getColumn(CreateMysql.colmTwitchChannel), channel);
+            HashMap<String, Object> row = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName).getRow(table.getColumn(CreateMysql.colmTwitchChannel), channel).get();
             String DcID = row.get(CreateMysql.colmDcServer).toString();
             List<Invite> invites = Main.getDiscord().getBot().getGuildById(DcID).retrieveInvites().complete();
             if (getValidInvite(invites) != null) {

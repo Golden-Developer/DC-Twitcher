@@ -4,6 +4,7 @@ import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import de.goldendeveloper.mysql.entities.Row;
+import de.goldendeveloper.mysql.entities.RowBuilder;
 import de.goldendeveloper.mysql.entities.Table;
 import de.goldendeveloper.twitcher.Main;
 import de.goldendeveloper.twitcher.mysql.CreateMysql;
@@ -26,7 +27,7 @@ public class Events extends ListenerAdapter {
         embed.setAuthor(new WebhookEmbed.EmbedAuthor(Main.getDiscord().getBot().getSelfUser().getName(), Main.getDiscord().getBot().getSelfUser().getAvatarUrl(), "https://Golden-Developer.de"));
         embed.addField(new WebhookEmbed.EmbedField(false, "[Status]", "OFFLINE"));
         embed.setColor(0xFF0000);
-        embed.setFooter(new WebhookEmbed.EmbedFooter("@Golden-Developer",  Main.getDiscord().getBot().getSelfUser().getAvatarUrl()));
+        embed.setFooter(new WebhookEmbed.EmbedFooter("@Golden-Developer", Main.getDiscord().getBot().getSelfUser().getAvatarUrl()));
         new WebhookClientBuilder(Main.getConfig().getDiscordWebhook()).build().send(embed.build());
     }
 
@@ -46,19 +47,19 @@ public class Events extends ListenerAdapter {
                                     Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
                                     if (table.existsColumn(CreateMysql.colmDcServer)) {
                                         if (!table.getColumn(CreateMysql.colmDcServer).getAll().contains(e.getGuild().getId())) {
-                                            table.insert(new Row(table, table.getDatabase())
-                                                    .with(CreateMysql.colmDcServer, e.getGuild().getId())
-                                                    .with(CreateMysql.colmDcStreamNotifyChannel, "")
-                                                    .with(CreateMysql.colmDcStreamNotifyRole, role.getId())
-                                                    .with(CreateMysql.colmTwitchChannel, "")
+                                            table.insert(new RowBuilder()
+                                                    .with(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId())
+                                                    .with(table.getColumn(CreateMysql.colmDcStreamNotifyChannel), "")
+                                                    .with(table.getColumn(CreateMysql.colmDcStreamNotifyRole), role.getId())
+                                                    .with(table.getColumn(CreateMysql.colmTwitchChannel), "")
+                                                    .build()
                                             );
-                                            isAvailable(e,"Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!");
+                                            isAvailable(e, "Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!");
                                         } else {
-                                            HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId());
-                                            int id = Integer.parseInt(row.get("id").toString());
+                                            HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
                                             if (row.containsKey(CreateMysql.colmDcStreamNotifyRole) && !row.get(CreateMysql.colmDcStreamNotifyRole).toString().isEmpty()) {
-                                                table.getColumn(CreateMysql.colmDcStreamNotifyRole).set(role.getId(), id);
-                                                isAvailable(e,"Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!");
+                                                table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).set(table.getColumn(CreateMysql.colmDcStreamNotifyRole), role.getId());
+                                                isAvailable(e, "Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!");
                                             } else {
                                                 e.getInteraction().reply("Die neue Stream Info Rolle kann nicht die alte Stream Info Rolle sein!").queue();
                                             }
@@ -77,19 +78,19 @@ public class Events extends ListenerAdapter {
                                         Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
                                         if (table.existsColumn(CreateMysql.colmDcServer)) {
                                             if (!table.getColumn(CreateMysql.colmDcServer).getAll().contains(e.getGuild().getId())) {
-                                                table.insert(new Row(table, table.getDatabase())
-                                                        .with(CreateMysql.colmDcServer, e.getGuild().getId())
-                                                        .with(CreateMysql.colmDcStreamNotifyChannel, channel.getId())
-                                                        .with(CreateMysql.colmDcStreamNotifyRole, "")
-                                                        .with(CreateMysql.colmTwitchChannel, "")
+                                                table.insert(new RowBuilder()
+                                                        .with(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId())
+                                                        .with(table.getColumn(CreateMysql.colmDcStreamNotifyChannel), channel.getId())
+                                                        .with(table.getColumn(CreateMysql.colmDcStreamNotifyRole), "")
+                                                        .with(table.getColumn(CreateMysql.colmTwitchChannel), "")
+                                                        .build()
                                                 );
-                                                isAvailable(e,"Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!");
+                                                isAvailable(e, "Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!");
                                             } else {
-                                                HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId());
-                                                int id = Integer.parseInt(row.get("id").toString());
+                                                HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
                                                 if (row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && !row.get(CreateMysql.colmDcStreamNotifyChannel).toString().isEmpty()) {
-                                                    table.getColumn(CreateMysql.colmDcStreamNotifyChannel).set(channel.getId(), id);
-                                                    isAvailable(e,"Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!");
+                                                    table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).set(table.getColumn(CreateMysql.colmDcStreamNotifyChannel), channel.getId());
+                                                    isAvailable(e, "Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!");
                                                 } else {
                                                     e.getInteraction().reply("Der neue Stream Info Channel kann nicht der alte Stream Info Channel sein!").queue();
                                                 }
@@ -108,19 +109,19 @@ public class Events extends ListenerAdapter {
                                     Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
                                     if (table.existsColumn(CreateMysql.colmDcServer)) {
                                         if (!table.getColumn(CreateMysql.colmDcServer).getAll().contains(e.getGuild().getId())) {
-                                            table.insert(new Row(table, table.getDatabase())
-                                                    .with(CreateMysql.colmDcServer, e.getGuild().getId())
-                                                    .with(CreateMysql.colmDcStreamNotifyChannel, "")
-                                                    .with(CreateMysql.colmDcStreamNotifyRole, "")
-                                                    .with(CreateMysql.colmTwitchChannel, TwChannel)
+                                            table.insert(new RowBuilder()
+                                                    .with(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId())
+                                                    .with(table.getColumn(CreateMysql.colmDcStreamNotifyChannel), "")
+                                                    .with(table.getColumn(CreateMysql.colmDcStreamNotifyRole), "")
+                                                    .with(table.getColumn(CreateMysql.colmTwitchChannel), TwChannel)
+                                                    .build()
                                             );
-                                            isAvailable(e,"Der neue Twitch Channel ist nun " + TwChannel + "!");
+                                            isAvailable(e, "Der neue Twitch Channel ist nun " + TwChannel + "!");
                                         } else {
-                                            HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId());
-                                            int id = Integer.parseInt(row.get("id").toString());
+                                            HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
                                             if (row.containsKey(CreateMysql.colmTwitchChannel) && !row.get(CreateMysql.colmTwitchChannel).toString().isEmpty()) {
-                                                table.getColumn(CreateMysql.colmTwitchChannel).set(TwChannel, id);
-                                                isAvailable(e,"Der neue Twitch Channel ist nun " + TwChannel + "!");
+                                                table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).set(table.getColumn(CreateMysql.colmTwitchChannel), TwChannel);
+                                                isAvailable(e, "Der neue Twitch Channel ist nun " + TwChannel + "!");
                                             } else {
                                                 e.getInteraction().reply("Der neue Twitch Channel kann nicht der alte Twitch Channel sein!").queue();
                                             }
@@ -141,7 +142,7 @@ public class Events extends ListenerAdapter {
                 Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
                 if (table.existsColumn(CreateMysql.colmDcServer)) {
                     if (table.getColumn(CreateMysql.colmDcServer).getAll().contains(e.getGuild().getId())) {
-                        HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId());
+                        HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
                         if (row.containsKey(CreateMysql.colmTwitchChannel) && row.containsKey(CreateMysql.colmDcStreamNotifyRole) && row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && row.containsKey(CreateMysql.colmTwitchChannel)) {
                             String TwChannel = row.get(CreateMysql.colmTwitchChannel).toString();
                             String DcChannel = row.get(CreateMysql.colmDcStreamNotifyChannel).toString();
@@ -180,12 +181,12 @@ public class Events extends ListenerAdapter {
 
 
     /*
-    *  /settings discord-info-channel <TextChannel/NewsChannel>
-    *  /settings twitch-info-channel <String>
-    *  /settings twitch-info-role <Role>
-    *
-    * onTwitch
-    * Twitch Channel Namens
-    *
-    * */
+     *  /settings discord-info-channel <TextChannel/NewsChannel>
+     *  /settings twitch-info-channel <String>
+     *  /settings twitch-info-role <Role>
+     *
+     * onTwitch
+     * Twitch Channel Namens
+     *
+     * */
 }

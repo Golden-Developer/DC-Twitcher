@@ -5,7 +5,6 @@ import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import de.goldendeveloper.mysql.entities.Table;
-import de.goldendeveloper.twitcher.Config;
 import de.goldendeveloper.twitcher.Main;
 import de.goldendeveloper.twitcher.mysql.CreateMysql;
 import de.goldendeveloper.twitcher.twitch.events.TwitchEventHandler;
@@ -41,7 +40,7 @@ public class Twitch {
                 Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
                 if (table.existsColumn(CreateMysql.colmDcServer)) {
                     for (Object obj : table.getColumn(CreateMysql.colmDcServer).getAll()) {
-                        HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), obj.toString());
+                        HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), obj.toString()).get();
                         if (row.containsKey(CreateMysql.colmTwitchChannel) && row.containsKey(CreateMysql.colmDcStreamNotifyRole) && row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && row.containsKey(CreateMysql.colmTwitchChannel)) {
                             String TwChannel = row.get(CreateMysql.colmTwitchChannel).toString();
                             String DcChannel = row.get(CreateMysql.colmDcStreamNotifyChannel).toString();
