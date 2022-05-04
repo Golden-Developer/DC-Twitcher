@@ -17,19 +17,16 @@ public class TwitchEventHandler {
 
     @EventSubscriber
     public void onChannelGoLive(ChannelGoLiveEvent e) {
-        System.out.println("New Stream");
         if (Main.getMysql().existsDatabase(Main.dbName)) {
             if (Main.getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
                 Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
                 if (table.existsColumn(CreateMysql.colmDcServer) && table.existsColumn(CreateMysql.colmTwitchChannel)) {
                     HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmTwitchChannel), e.getChannel().getName()).get();
                     if (row.containsKey(CreateMysql.colmTwitchChannel) && row.containsKey(CreateMysql.colmDcStreamNotifyRole) && row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && row.containsKey(CreateMysql.colmTwitchChannel)) {
-                        System.out.println("ERROR 5");
                         Guild guild = Main.getDiscord().getBot().getGuildById(row.get(CreateMysql.colmDcServer).toString());
                         Channel channel = guild.getGuildChannelById(row.get(CreateMysql.colmDcStreamNotifyChannel).toString());
                         if (guild != null) {
                             if (channel != null) {
-                                System.out.println("ERROR 6");
                                 Role role = guild.getRoleById(row.get(CreateMysql.colmDcStreamNotifyRole).toString());
                                 if (role != null) {
                                     if (channel.getType().equals(ChannelType.NEWS)) {
