@@ -43,7 +43,7 @@ public class Discord {
                             GatewayIntent.GUILD_MESSAGE_TYPING, GatewayIntent.GUILD_VOICE_STATES,
                             GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.GUILD_MEMBERS,
                             GatewayIntent.GUILD_MESSAGE_TYPING)
-                    .addEventListeners()
+                    .addEventListeners(new Events())
                     .setAutoReconnect(true)
                     .build().awaitReady();
             Bot.upsertCommand(cmdSettings, "Stellt den " + Bot.getSelfUser().getName() + " ein!" )

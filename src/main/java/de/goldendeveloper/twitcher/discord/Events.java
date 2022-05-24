@@ -3,8 +3,8 @@ package de.goldendeveloper.twitcher.discord;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
-import de.goldendeveloper.mysql.entities.Row;
 import de.goldendeveloper.mysql.entities.RowBuilder;
+import de.goldendeveloper.mysql.entities.SearchResult;
 import de.goldendeveloper.mysql.entities.Table;
 import de.goldendeveloper.twitcher.Main;
 import de.goldendeveloper.twitcher.mysql.CreateMysql;
@@ -56,8 +56,8 @@ public class Events extends ListenerAdapter {
                                             );
                                             isAvailable(e, "Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!");
                                         } else {
-                                            HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
-                                            if (row.containsKey(CreateMysql.colmDcStreamNotifyRole) && !row.get(CreateMysql.colmDcStreamNotifyRole).toString().isEmpty()) {
+                                            HashMap<String, SearchResult> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
+                                            if (row.containsKey(CreateMysql.colmDcStreamNotifyRole) && !row.get(CreateMysql.colmDcStreamNotifyRole).getAsString().isEmpty()) {
                                                 table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).set(table.getColumn(CreateMysql.colmDcStreamNotifyRole), role.getId());
                                                 isAvailable(e, "Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!");
                                             } else {
@@ -87,8 +87,8 @@ public class Events extends ListenerAdapter {
                                                 );
                                                 isAvailable(e, "Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!");
                                             } else {
-                                                HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
-                                                if (row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && !row.get(CreateMysql.colmDcStreamNotifyChannel).toString().isEmpty()) {
+                                                HashMap<String, SearchResult> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
+                                                if (row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && !row.get(CreateMysql.colmDcStreamNotifyChannel).getAsString().isEmpty()) {
                                                     table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).set(table.getColumn(CreateMysql.colmDcStreamNotifyChannel), channel.getId());
                                                     isAvailable(e, "Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!");
                                                 } else {
@@ -118,8 +118,8 @@ public class Events extends ListenerAdapter {
                                             );
                                             isAvailable(e, "Der neue Twitch Channel ist nun " + TwChannel + "!");
                                         } else {
-                                            HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
-                                            if (row.containsKey(CreateMysql.colmTwitchChannel) && !row.get(CreateMysql.colmTwitchChannel).toString().isEmpty()) {
+                                            HashMap<String, SearchResult> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
+                                            if (row.containsKey(CreateMysql.colmTwitchChannel) && !row.get(CreateMysql.colmTwitchChannel).getAsString().isEmpty()) {
                                                 table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).set(table.getColumn(CreateMysql.colmTwitchChannel), TwChannel);
                                                 isAvailable(e, "Der neue Twitch Channel ist nun " + TwChannel + "!");
                                             } else {
@@ -142,11 +142,11 @@ public class Events extends ListenerAdapter {
                 Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
                 if (table.existsColumn(CreateMysql.colmDcServer)) {
                     if (table.getColumn(CreateMysql.colmDcServer).getAll().contains(e.getGuild().getId())) {
-                        HashMap<String, Object> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
+                        HashMap<String, SearchResult> row = table.getRow(table.getColumn(CreateMysql.colmDcServer), e.getGuild().getId()).get();
                         if (row.containsKey(CreateMysql.colmTwitchChannel) && row.containsKey(CreateMysql.colmDcStreamNotifyRole) && row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && row.containsKey(CreateMysql.colmTwitchChannel)) {
-                            String TwChannel = row.get(CreateMysql.colmTwitchChannel).toString();
-                            String DcChannel = row.get(CreateMysql.colmDcStreamNotifyChannel).toString();
-                            String DcRole = row.get(CreateMysql.colmDcStreamNotifyRole).toString();
+                            String TwChannel = row.get(CreateMysql.colmTwitchChannel).getAsString();
+                            String DcChannel = row.get(CreateMysql.colmDcStreamNotifyChannel).getAsString();
+                            String DcRole = row.get(CreateMysql.colmDcStreamNotifyRole).getAsString();
                             if (!TwChannel.isEmpty()) {
                                 if (!DcChannel.isEmpty()) {
                                     if (!DcRole.isEmpty()) {
