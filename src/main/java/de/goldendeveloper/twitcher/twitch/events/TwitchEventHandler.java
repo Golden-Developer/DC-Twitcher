@@ -4,6 +4,7 @@ import com.github.philippheuer.events4j.simple.domain.EventSubscriber;
 import com.github.twitch4j.chat.events.channel.*;
 import com.github.twitch4j.events.*;
 import com.github.twitch4j.helix.domain.SubscriptionEvent;
+import de.goldendeveloper.mysql.entities.Row;
 import de.goldendeveloper.mysql.entities.SearchResult;
 import de.goldendeveloper.mysql.entities.Table;
 import de.goldendeveloper.twitcher.Main;
@@ -11,6 +12,7 @@ import de.goldendeveloper.twitcher.mysql.CreateMysql;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -20,8 +22,6 @@ import java.util.concurrent.TimeUnit;
 public class TwitchEventHandler {
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private static final Boolean b = false;
-  //  private static final HashMap b = false;
 
     @EventSubscriber
     public void onChannelGoLive(ChannelGoLiveEvent e) {
@@ -60,6 +60,20 @@ public class TwitchEventHandler {
                 }
             }
         }
+    }
+
+    public static List<Channel> getMessageChannel(Table table, String TwitchName) {
+        List<Channel> channels = new ArrayList<>();
+        for (Row r : table.getRows()) {
+            HashMap<String, SearchResult> sr = r.get();
+            if (sr.get(CreateMysql.colmTwitchChannel).getAsString().equalsIgnoreCase(TwitchName)) {
+                if (sr.get(CreateMysql.colmDcStreamNotifyChannel).getAsLong() != 0) {
+                    Channel channel = Main.getDiscord().getBot().getGuildChannelById(sr.get(CreateMysql.colmDcStreamNotifyChannel).getAsLong());
+                    channels.add(channel);
+                }
+            }
+        }
+        return channels;
     }
 
     public void startThread() {
