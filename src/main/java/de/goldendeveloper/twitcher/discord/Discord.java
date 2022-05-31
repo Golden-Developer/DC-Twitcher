@@ -15,10 +15,12 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.security.auth.login.LoginException;
 import java.awt.*;
+import java.io.IOException;
+import java.util.Properties;
 
 public class Discord {
 
-    private JDA Bot;
+    private JDA bot;
     private final Color EmbedColor;
 
     public static String cmdSettings = "settings";
@@ -29,9 +31,13 @@ public class Discord {
     public static String cmdSettingsSubChannelOptionChannel = "channel";
     public static String cmdSettingsSubRoleOptionRole = "role";
 
+    public static String getCmdShutdown = "shutdown";
+    public static String getCmdRestart = "restart";
+    public static String cmdHelp = "help";
+
     public Discord(String Token) {
         try {
-            Bot = JDABuilder.createDefault(Token)
+            bot = JDABuilder.createDefault(Token)
                     .setChunkingFilter(ChunkingFilter.ALL)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.ROLE_TAGS, CacheFlag.EMOTE, CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
@@ -44,14 +50,10 @@ public class Discord {
                             GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.GUILD_MEMBERS,
                             GatewayIntent.GUILD_MESSAGE_TYPING)
                     .addEventListeners(new Events())
+                    .setContextEnabled(true)
                     .setAutoReconnect(true)
                     .build().awaitReady();
-            Bot.upsertCommand(cmdSettings, "Stellt den " + Bot.getSelfUser().getName() + " ein!" )
-                    .addSubcommands(
-                            new SubcommandData(cmdSettingsSubChannel, "Setzte den Info Channel für deine Twitch Live Streams").addOption(OptionType.CHANNEL, cmdSettingsSubChannelOptionChannel,"Twitch Benachrichtigung Channel", true),
-                            new SubcommandData(cmdSettingsSubTwitchChannel, "Speichert deinen Twitch Channel Namen").addOption(OptionType.STRING, cmdSettingsSubTwitchChannelOptionName,"Twitch Channel Name", true),
-                            new SubcommandData(cmdSettingsSubRole, "Setzt die Rolle für die Stream Benachrichtigung").addOption(OptionType.ROLE, cmdSettingsSubRoleOptionRole, "Twitch Info Rolle", true)
-                    ).queue();
+            registerCommands();
             if (!System.getProperty("os.name").split(" ")[0].equalsIgnoreCase("windows")) {
                 Online();
             }
@@ -61,8 +63,20 @@ public class Discord {
         this.EmbedColor = new Color(100, 65, 164);
     }
 
+    public void registerCommands() {
+        bot.upsertCommand(cmdSettings, "Stellt den " + bot.getSelfUser().getName() + " ein!" )
+                .addSubcommands(
+                        new SubcommandData(cmdSettingsSubChannel, "Setzte den Info Channel für deine Twitch Live Streams").addOption(OptionType.CHANNEL, cmdSettingsSubChannelOptionChannel,"Twitch Benachrichtigung Channel", true),
+                        new SubcommandData(cmdSettingsSubTwitchChannel, "Speichert deinen Twitch Channel Namen").addOption(OptionType.STRING, cmdSettingsSubTwitchChannelOptionName,"Twitch Channel Name", true),
+                        new SubcommandData(cmdSettingsSubRole, "Setzt die Rolle für die Stream Benachrichtigung").addOption(OptionType.ROLE, cmdSettingsSubRoleOptionRole, "Twitch Info Rolle", true)
+                ).queue();
+        bot.upsertCommand(getCmdShutdown, "Fährt den Discord Bot herunter!").queue();
+        bot.upsertCommand(getCmdRestart, "Startet den Discord Bot neu!").queue();
+        bot.upsertCommand(cmdHelp, "Zeigt dir eine Liste möglicher Befehle an!").queue();
+    }
+
     public JDA getBot() {
-        return Bot;
+        return bot;
     }
 
     public Color getEmbedColor() {
@@ -76,5 +90,25 @@ public class Discord {
         embed.setColor(0x00FF00);
         embed.setFooter(new WebhookEmbed.EmbedFooter("@Golden-Developer", getBot().getSelfUser().getAvatarUrl()));
         new WebhookClientBuilder(Main.getConfig().getDiscordWebhook()).build().send(embed.build());
+    }
+
+    public String getProjektVersion() {
+        Properties properties = new Properties();
+        try {
+            properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return properties.getProperty("version");
+    }
+
+    public String getProjektName() {
+        Properties properties = new Properties();
+        try {
+            properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return properties.getProperty("name");
     }
 }

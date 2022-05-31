@@ -4,28 +4,32 @@ import de.goldendeveloper.mysql.MYSQL;
 import de.goldendeveloper.mysql.entities.Database;
 import de.goldendeveloper.mysql.entities.MysqlTypes;
 import de.goldendeveloper.mysql.entities.Table;
-import de.goldendeveloper.twitcher.Main;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateMysql {
+public class MysqlConnection {
 
     public static String colmDcServer = "DiscordServer";
     public static String colmDcStreamNotifyChannel = "DcStreamNotifyChannelID";
     public static String colmDcStreamNotifyRole = "DcStreamNotifyRoleID";
     public static String colmTwitchChannel = "TwitchChannel";
 
-    public CreateMysql(String hostname, int port, String username, String password) {
-        Main.setMysql(new MYSQL(hostname, username, password, port));
-        if (!Main.getMysql().existsDatabase(Main.dbName)) {
-            Main.getMysql().createDatabase(Main.dbName);
+    public static String dbName = "Twitcher";
+    public static String tableName = "Twitcher";
+
+    private MYSQL mysql;
+
+    public MysqlConnection(String hostname, int port, String username, String password) {
+        mysql = new MYSQL(hostname, username, password, port);
+        if (!mysql.existsDatabase(dbName)) {
+            mysql.createDatabase(dbName);
         }
-        Database db = Main.getMysql().getDatabase(Main.dbName);
-        if (!db.existsTable(Main.tableName)) {
-            db.createTable(Main.tableName);
+        Database db = mysql.getDatabase(dbName);
+        if (!db.existsTable(tableName)) {
+            db.createTable(tableName);
         }
-        Table table = db.getTable(Main.tableName);
+        Table table = db.getTable(tableName);
 
         List<String> l = new ArrayList<>();
         l.add(colmDcStreamNotifyChannel);
@@ -38,5 +42,9 @@ public class CreateMysql {
                 table.addColumn(column, MysqlTypes.VARCHAR, 80);
             }
         }
+    }
+
+    public MYSQL getMysql() {
+        return mysql;
     }
 }
