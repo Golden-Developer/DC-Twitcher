@@ -8,51 +8,38 @@ import de.goldendeveloper.mysql.entities.Row;
 import de.goldendeveloper.mysql.entities.SearchResult;
 import de.goldendeveloper.mysql.entities.Table;
 import de.goldendeveloper.twitcher.Main;
-import de.goldendeveloper.twitcher.mysql.CreateMysql;
+import de.goldendeveloper.twitcher.mysql.MysqlConnection;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class TwitchEventHandler {
 
-    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
     @EventSubscriber
     public void onChannelGoLive(ChannelGoLiveEvent e) {
-        if (Main.getMysql().existsDatabase(Main.dbName)) {
-            if (Main.getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
-                Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
-                if (table.existsColumn(CreateMysql.colmDcServer) && table.existsColumn(CreateMysql.colmTwitchChannel)) {
-                    HashMap<String, SearchResult> row = table.getRow(table.getColumn(CreateMysql.colmTwitchChannel), e.getChannel().getName()).get();
-                    if (row.containsKey(CreateMysql.colmTwitchChannel) && row.containsKey(CreateMysql.colmDcStreamNotifyRole) && row.containsKey(CreateMysql.colmDcStreamNotifyChannel) && row.containsKey(CreateMysql.colmTwitchChannel)) {
-                        Guild guild = Main.getDiscord().getBot().getGuildById(row.get(CreateMysql.colmDcServer).getAsLong());
-                        Channel channel = guild.getGuildChannelById(row.get(CreateMysql.colmDcStreamNotifyChannel).getAsLong());
-                        if (guild != null) {
-                            if (channel != null) {
-                                Role role = guild.getRoleById(row.get(CreateMysql.colmDcStreamNotifyRole).getAsLong());
-                                if (role != null) {
-                                    if (channel.getType().equals(ChannelType.NEWS)) {
-                                        NewsChannel newsChannel = guild.getNewsChannelById(channel.getId());
-                                        if (newsChannel != null) {
-                                            newsChannel.sendMessage(role.getAsMention() + " ist nun Live auf Twitch!")
-                                                    .setEmbeds(sendTwitchNotifyEmbed(e.getStream().getTitle(), e.getChannel().getName(), e.getStream().getGameName(), e.getStream().getViewerCount()))
-                                                    .queue();
-                                        }
-                                    } else if (channel.getType().equals(ChannelType.TEXT)) {
-                                        TextChannel textChannel = guild.getTextChannelById(channel.getId());
-                                        if (textChannel != null) {
-                                            textChannel.sendMessage(role.getAsMention() + " ist nun Live auf Twitch!")
-                                                    .setEmbeds(sendTwitchNotifyEmbed(e.getStream().getTitle(), e.getChannel().getName(), e.getStream().getGameName(), e.getStream().getViewerCount()))
-                                                    .queue();
-                                        }
-                                    }
-                                    startThread();
+        if (Main.getMysqlConnection().getMysql().existsDatabase(Main.dbName)) {
+            if (Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
+                Table table = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
+                if (table.existsColumn(MysqlConnection.colmDcServer) && table.existsColumn(MysqlConnection.colmTwitchChannel)) {
+                    HashMap<Channel, Role> notify = getMessageChannel(table, e.getChannel().getName());
+                    for (Channel channel : notify.keySet()) {
+                        Role role = notify.get(channel);
+                        if (role != null) {
+                            if (channel.getType().equals(ChannelType.TEXT)) {
+                                TextChannel textChannel = Main.getDiscord().getBot().getTextChannelById(channel.getId());
+                                if (textChannel != null) {
+                                    textChannel.sendMessage(role.getAsMention() + " ist nun Live auf Twitch!")
+                                            .setEmbeds(sendTwitchNotifyEmbed(e.getStream().getTitle(), e.getChannel().getName(), e.getStream().getGameName(), e.getStream().getViewerCount()))
+                                            .queue();
+                                }
+                            } else if (channel.getType().equals(ChannelType.NEWS)) {
+                                NewsChannel newsChannel = Main.getDiscord().getBot().getNewsChannelById(channel.getId());
+                                if (newsChannel != null) {
+                                    newsChannel.sendMessage(role.getAsMention() + " ist nun Live auf Twitch!")
+                                            .setEmbeds(sendTwitchNotifyEmbed(e.getStream().getTitle(), e.getChannel().getName(), e.getStream().getGameName(), e.getStream().getViewerCount()))
+                                            .queue();
                                 }
                             }
                         }
@@ -62,30 +49,21 @@ public class TwitchEventHandler {
         }
     }
 
-    public static List<Channel> getMessageChannel(Table table, String TwitchName) {
-        List<Channel> channels = new ArrayList<>();
-        for (Row r : table.getRows()) {
-            HashMap<String, SearchResult> sr = r.get();
-            if (sr.get(CreateMysql.colmTwitchChannel).getAsString().equalsIgnoreCase(TwitchName)) {
-                if (sr.get(CreateMysql.colmDcStreamNotifyChannel).getAsLong() != 0) {
-                    Channel channel = Main.getDiscord().getBot().getGuildChannelById(sr.get(CreateMysql.colmDcStreamNotifyChannel).getAsLong());
-                    channels.add(channel);
+    public static HashMap<Channel, Role> getMessageChannel(Table table, String TwitchName) {
+        HashMap<Channel, Role> channels = new HashMap<>();
+        for (Row row : table.getRows()) {
+            HashMap<String, SearchResult> sr = row.get();
+            if (sr.get(MysqlConnection.colmTwitchChannel).getAsString().equalsIgnoreCase(TwitchName)) {
+                if (!sr.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString().equalsIgnoreCase("0")) {
+                    Channel channel = Main.getDiscord().getBot().getGuildChannelById(sr.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString());
+                    Role role = Main.getDiscord().getBot().getRoleById(sr.get(MysqlConnection.colmDcStreamNotifyRole).getAsString());
+                    if (role != null) {
+                        channels.put(channel, role);
+                    }
                 }
             }
         }
         return channels;
-    }
-
-    public void startThread() {
-        scheduler.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                for (String channel : Main.getTwitch().getBot().getChat().getChannels()) {
-                    Main.getTwitch().getBot().getChat().sendMessage(channel, "Joine auch gerne auf unseren Discord " + sendDiscordInvite(channel));
-                }
-            }
-        }, 8, 8, TimeUnit.MINUTES);
-        scheduler.shutdown();
     }
 
     @EventSubscriber
@@ -121,10 +99,10 @@ public class TwitchEventHandler {
     }
 
     private String sendDiscordInvite(String channel) {
-        Table table = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
-        if (table.getColumn(CreateMysql.colmTwitchChannel).getAll().contains(channel)) {
-            HashMap<String, SearchResult> row = Main.getMysql().getDatabase(Main.dbName).getTable(Main.tableName).getRow(table.getColumn(CreateMysql.colmTwitchChannel), channel).get();
-            long DcID = row.get(CreateMysql.colmDcServer).getAsLong();
+        Table table = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
+        if (table.getColumn(MysqlConnection.colmTwitchChannel).getAll().contains(channel)) {
+            HashMap<String, SearchResult> row = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName).getRow(table.getColumn(MysqlConnection.colmTwitchChannel), channel).get();
+            long DcID = row.get(MysqlConnection.colmDcServer).getAsLong();
             List<Invite> invites = Main.getDiscord().getBot().getGuildById(DcID).retrieveInvites().complete();
             if (getValidInvite(invites) != null) {
                 return getValidInvite(invites);
