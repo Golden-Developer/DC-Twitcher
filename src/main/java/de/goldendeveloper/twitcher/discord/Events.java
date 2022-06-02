@@ -177,14 +177,14 @@ public class Events extends ListenerAdapter {
                     net.dv8tion.jda.api.interactions.components.buttons.Button.link("https://wiki.Golden-Developer.de/", "Online Übersicht"),
                     Button.link("https://support.Golden-Developer.de", "Support Anfragen")
             ).queue();
-        } else if (e.getName().equalsIgnoreCase(Discord.getCmdShutdown)) {
+        } else if (e.getName().equalsIgnoreCase(Discord.cmdShutdown)) {
             if (e.getUser() == zRazzer || e.getUser() == _Coho04_) {
                 e.getInteraction().reply("Der Bot wird nun heruntergefahren").queue();
                 e.getJDA().shutdown();
             } else {
                 e.getInteraction().reply("Dazu hast du keine Rechte du musst für diesen Befehl der Bot inhaber sein!").queue();
             }
-        } else if (e.getName().equalsIgnoreCase(Discord.getCmdRestart)) {
+        } else if (e.getName().equalsIgnoreCase(Discord.cmdRestart)) {
             if (e.getUser() == zRazzer || e.getUser() == _Coho04_) {
                 try {
                     e.getInteraction().reply("Der Discord Bot wird nun neugestartet!").queue();

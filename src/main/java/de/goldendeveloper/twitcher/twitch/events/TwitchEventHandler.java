@@ -99,9 +99,9 @@ public class TwitchEventHandler {
     }
 
     private String sendDiscordInvite(String channel) {
-        Table table = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
+        Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
         if (table.getColumn(MysqlConnection.colmTwitchChannel).getAll().contains(channel)) {
-            HashMap<String, SearchResult> row = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName).getRow(table.getColumn(MysqlConnection.colmTwitchChannel), channel).get();
+            HashMap<String, SearchResult> row = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName).getRow(table.getColumn(MysqlConnection.colmTwitchChannel), channel).get();
             long DcID = row.get(MysqlConnection.colmDcServer).getAsLong();
             List<Invite> invites = Main.getDiscord().getBot().getGuildById(DcID).retrieveInvites().complete();
             if (getValidInvite(invites) != null) {
