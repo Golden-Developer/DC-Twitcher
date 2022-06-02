@@ -25,8 +25,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.awt.*;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 public class Events extends ListenerAdapter {
 
@@ -59,10 +61,10 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
+        String cmd = e.getName();
         User _Coho04_ = e.getJDA().getUserById("513306244371447828");
         User zRazzer = e.getJDA().getUserById("428811057700536331");
         if (e.isFromGuild()) {
-            String cmd = e.getName();
             if (cmd.equalsIgnoreCase(Discord.cmdSettings)) {
                 String subCmd = e.getSubcommandName();
                 if (subCmd != null) {
@@ -70,9 +72,9 @@ public class Events extends ListenerAdapter {
                         OptionMapping mapping = e.getOption(Discord.cmdSettingsSubRoleOptionRole);
                         if (mapping != null) {
                             Role role = mapping.getAsRole();
-                            if (Main.getMysqlConnection().getMysql().existsDatabase(Main.dbName)) {
-                                if (Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
-                                    Table table = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
+                            if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
+                                if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
+                                    Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                                     if (table.existsColumn(MysqlConnection.colmDcServer)) {
                                         if (!table.getColumn(MysqlConnection.colmDcServer).getAll().contains(e.getGuild().getId())) {
                                             table.insert(new RowBuilder()
@@ -101,9 +103,9 @@ public class Events extends ListenerAdapter {
                         if (mapping != null) {
                             TextChannel channel = mapping.getAsTextChannel();
                             if (channel != null) {
-                                if (Main.getMysqlConnection().getMysql().existsDatabase(Main.dbName)) {
-                                    if (Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
-                                        Table table = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
+                                if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
+                                    if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
+                                        Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                                         if (table.existsColumn(MysqlConnection.colmDcServer)) {
                                             if (!table.getColumn(MysqlConnection.colmDcServer).getAll().contains(e.getGuild().getId())) {
                                                 table.insert(new RowBuilder()
@@ -132,9 +134,9 @@ public class Events extends ListenerAdapter {
                         OptionMapping mapping = e.getOption(Discord.cmdSettingsSubTwitchChannel);
                         if (mapping != null) {
                             String TwChannel = mapping.getAsString();
-                            if (Main.getMysqlConnection().getMysql().existsDatabase(Main.dbName)) {
-                                if (Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
-                                    Table table = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
+                            if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
+                                if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
+                                    Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                                     if (table.existsColumn(MysqlConnection.colmDcServer)) {
                                         if (!table.getColumn(MysqlConnection.colmDcServer).getAll().contains(e.getGuild().getId())) {
                                             table.insert(new RowBuilder()
@@ -160,54 +162,48 @@ public class Events extends ListenerAdapter {
                         }
                     }
                 }
-            } else if (cmd.equalsIgnoreCase(Discord.cmdHelp)) {
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setTitle("**Help Commands**");
-                embed.setColor(Color.MAGENTA);
-                for (Command cm : Main.getDiscord().getBot().retrieveCommands().complete()) {
-                    embed.addField("/" + cm.getName(), cm.getDescription(), true);
+            }
+        }
+        if (cmd.equalsIgnoreCase(Discord.cmdHelp)) {
+            List<Command> commands = Main.getDiscord().getBot().retrieveCommands().complete();
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle("**Help Commands**");
+            embed.setColor(Color.MAGENTA);
+            embed.setFooter("@Golden-Developer", e.getJDA().getSelfUser().getAvatarUrl());
+            for (Command cm : commands) {
+                embed.addField("/" + cm.getName(), cm.getDescription(), true);
+            }
+            e.getInteraction().replyEmbeds(embed.build()).addActionRow(
+                    net.dv8tion.jda.api.interactions.components.buttons.Button.link("https://wiki.Golden-Developer.de/", "Online Übersicht"),
+                    Button.link("https://support.Golden-Developer.de", "Support Anfragen")
+            ).queue();
+        } else if (e.getName().equalsIgnoreCase(Discord.getCmdShutdown)) {
+            if (e.getUser() == zRazzer || e.getUser() == _Coho04_) {
+                e.getInteraction().reply("Der Bot wird nun heruntergefahren").queue();
+                e.getJDA().shutdown();
+            } else {
+                e.getInteraction().reply("Dazu hast du keine Rechte du musst für diesen Befehl der Bot inhaber sein!").queue();
+            }
+        } else if (e.getName().equalsIgnoreCase(Discord.getCmdRestart)) {
+            if (e.getUser() == zRazzer || e.getUser() == _Coho04_) {
+                try {
+                    e.getInteraction().reply("Der Discord Bot wird nun neugestartet!").queue();
+                    Process p = Runtime.getRuntime().exec("screen -AmdS " + Main.getDiscord().getProjektName() + " java -Xms1096M -Xmx1096M -jar " + Main.getDiscord().getProjektName() + "-" + Main.getDiscord().getProjektVersion() + ".jar restart");
+                    p.waitFor();
+                    e.getJDA().shutdown();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
-                embed.setFooter("@Golden-Developer", e.getJDA().getSelfUser().getAvatarUrl());
-                e.getInteraction().replyEmbeds(embed.build()).addActionRow(
-                        Button.link("https://wiki.Golden-Developer.de/", "Online Übersicht"),
-                        Button.link("https://support.Golden-Developer.de", "Support Anfragen")
-                ).queue();
-            } else if (e.getName().equalsIgnoreCase(Discord.cmdShutdown)) {
-                if (Main.getDeployment()) {
-                    if (e.getUser() == zRazzer || e.getUser() == _Coho04_) {
-                        e.getInteraction().reply("Der Bot wird nun heruntergefahren").queue();
-                        e.getJDA().shutdown();
-                    } else {
-                        e.getInteraction().reply("Dazu hast du keine Rechte du musst für diesen Befehl der Bot Inhaber sein!").queue();
-                    }
-                } else {
-                    e.reply("Dieser Bot kann nicht heruntergefahren werden, da er sich im Entwickler Modus befindet!").queue();
-                }
-            } else if (e.getName().equalsIgnoreCase(Discord.cmdRestart)) {
-                if (Main.getDeployment()) {
-                    if (e.getUser() == zRazzer || e.getUser() == _Coho04_) {
-                        try {
-                            e.getInteraction().reply("Der Discord Bot [" + e.getJDA().getSelfUser().getName() + "] wird nun neugestartet!").queue();
-                            Process p = Runtime.getRuntime().exec("screen -AmdS " + Main.getDiscord().getProjektName() + " java -Xms1096M -Xmx1096M -jar " + Main.getDiscord().getProjektName() + "-" + Main.getDiscord().getProjektVersion() + ".jar restart");
-                            p.waitFor();
-                            e.getJDA().shutdown();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    } else {
-                        e.getInteraction().reply("Dazu hast du keine Rechte du musst für diesen Befehl der Bot Inhaber sein!").queue();
-                    }
-                } else {
-                    e.reply("Dieser Bot kann nicht neugestartet werden, da er sich im Entwickler Modus befindet!").queue();
-                }
+            } else {
+                e.getInteraction().reply("Dazu hast du keine Rechte du musst für diesen Befehl der Bot inhaber sein!").queue();
             }
         }
     }
 
     public void isAvailable(SlashCommandInteractionEvent e, @Nullable String success) {
-        if (Main.getMysqlConnection().getMysql().existsDatabase(Main.dbName)) {
-            if (Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
-                Table table = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
+        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
+            if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
+                Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                 if (table.existsColumn(MysqlConnection.colmDcServer)) {
                     if (table.getColumn(MysqlConnection.colmDcServer).getAll().contains(e.getGuild().getId())) {
                         HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId()).get();
@@ -246,15 +242,4 @@ public class Events extends ListenerAdapter {
             }
         }
     }
-
-
-    /*
-     *  /settings discord-info-channel <TextChannel/NewsChannel>
-     *  /settings twitch-info-channel <String>
-     *  /settings twitch-info-role <Role>
-     *
-     * onTwitch
-     * Twitch Channel Namens
-     *
-     * */
 }

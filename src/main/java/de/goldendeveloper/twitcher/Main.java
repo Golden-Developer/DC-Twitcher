@@ -1,6 +1,5 @@
 package de.goldendeveloper.twitcher;
 
-import de.goldendeveloper.mysql.MYSQL;
 import de.goldendeveloper.twitcher.discord.Discord;
 import de.goldendeveloper.twitcher.mysql.MysqlConnection;
 import de.goldendeveloper.twitcher.twitch.Twitch;
@@ -9,11 +8,8 @@ public class Main {
 
     private static Discord discord;
     private static Twitch twitch;
-    private static Config config;
     private static MysqlConnection mysqlConnection;
-
-    public static String dbName = "Twitcher";
-    public static String tableName = "Twitcher";
+    private static Config config;
 
     private static Boolean restart = false;
     private static Boolean deployment = true;

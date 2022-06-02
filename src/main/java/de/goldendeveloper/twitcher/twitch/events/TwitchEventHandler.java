@@ -19,9 +19,9 @@ public class TwitchEventHandler {
 
     @EventSubscriber
     public void onChannelGoLive(ChannelGoLiveEvent e) {
-        if (Main.getMysqlConnection().getMysql().existsDatabase(Main.dbName)) {
-            if (Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
-                Table table = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
+        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
+            if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
+                Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                 if (table.existsColumn(MysqlConnection.colmDcServer) && table.existsColumn(MysqlConnection.colmTwitchChannel)) {
                     HashMap<Channel, Role> notify = getMessageChannel(table, e.getChannel().getName());
                     for (Channel channel : notify.keySet()) {

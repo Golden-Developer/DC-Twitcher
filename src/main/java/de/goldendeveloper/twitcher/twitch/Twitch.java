@@ -15,10 +15,9 @@ import java.util.HashMap;
 public class Twitch {
 
     private TwitchClient twitchClient;
-    private OAuth2Credential credential;
 
     public Twitch() {
-        credential = new OAuth2Credential("twitch", Main.getConfig().getTwitchCredinal());
+        OAuth2Credential credential = new OAuth2Credential("twitch", Main.getConfig().getTwitchCredinal());
         try {
             twitchClient = TwitchClientBuilder.builder()
                     .withClientId(Main.getConfig().getTwitchClientID())
@@ -36,9 +35,9 @@ public class Twitch {
         }
         twitchClient.getEventManager().getEventHandler(SimpleEventHandler.class).registerListener(new TwitchEventHandler());
 
-        if (Main.getMysqlConnection().getMysql().existsDatabase(Main.dbName)) {
-            if (Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).existsTable(Main.tableName)) {
-                Table table = Main.getMysqlConnection().getMysql().getDatabase(Main.dbName).getTable(Main.tableName);
+        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
+            if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
+                Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                 if (table.existsColumn(MysqlConnection.colmDcServer)) {
                     for (Object obj : table.getColumn(MysqlConnection.colmDcServer).getAll()) {
                         HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), obj.toString()).get();
