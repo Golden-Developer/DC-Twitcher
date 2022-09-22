@@ -37,9 +37,10 @@ public class MysqlConnection {
         l.add(colmTwitchChannel);
         for (String column : l) {
             if (!table.existsColumn(column)) {
-                table.addColumn(column, MysqlTypes.VARCHAR, 80);
+                table.addColumn(column);
             }
         }
+        System.out.println("[GD-Twitcher] Mysql Finished");
     }
 
     public MYSQL getMysql() {

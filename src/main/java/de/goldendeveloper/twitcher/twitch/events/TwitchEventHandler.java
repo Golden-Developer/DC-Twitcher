@@ -23,21 +23,22 @@ public class TwitchEventHandler {
             if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
                 Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                 if (table.existsColumn(MysqlConnection.colmDcServer) && table.existsColumn(MysqlConnection.colmTwitchChannel)) {
-                    HashMap<Channel, Role> notify = getMessageChannel(table, e.getChannel().getName());
+                    String twChannel = e.getChannel().getName();
+                    HashMap<Channel, Role> notify = getMessageChannel(table, twChannel);
                     for (Channel channel : notify.keySet()) {
                         Role role = notify.get(channel);
                         if (role != null) {
                             if (channel.getType().equals(ChannelType.TEXT)) {
                                 TextChannel textChannel = Main.getDiscord().getBot().getTextChannelById(channel.getId());
                                 if (textChannel != null) {
-                                    textChannel.sendMessage(role.getAsMention() + " ist nun Live auf Twitch!")
+                                    textChannel.sendMessage(role.getAsMention() + twChannel + " ist nun Live auf Twitch!")
                                             .setEmbeds(sendTwitchNotifyEmbed(e.getStream().getTitle(), e.getChannel().getName(), e.getStream().getGameName(), e.getStream().getViewerCount()))
                                             .queue();
                                 }
                             } else if (channel.getType().equals(ChannelType.NEWS)) {
                                 NewsChannel newsChannel = Main.getDiscord().getBot().getNewsChannelById(channel.getId());
                                 if (newsChannel != null) {
-                                    newsChannel.sendMessage(role.getAsMention() + " ist nun Live auf Twitch!")
+                                    newsChannel.sendMessage(role.getAsMention() + twChannel + " ist nun Live auf Twitch!")
                                             .setEmbeds(sendTwitchNotifyEmbed(e.getStream().getTitle(), e.getChannel().getName(), e.getStream().getGameName(), e.getStream().getViewerCount()))
                                             .queue();
                                 }
@@ -100,7 +101,7 @@ public class TwitchEventHandler {
 
     private String sendDiscordInvite(String channel) {
         Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
-        if (table.getColumn(MysqlConnection.colmTwitchChannel).getAll().contains(channel)) {
+        if (table.getColumn(MysqlConnection.colmTwitchChannel).getAll().getAsString().contains(channel)) {
             HashMap<String, SearchResult> row = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName).getRow(table.getColumn(MysqlConnection.colmTwitchChannel), channel).get();
             long DcID = row.get(MysqlConnection.colmDcServer).getAsLong();
             List<Invite> invites = Main.getDiscord().getBot().getGuildById(DcID).retrieveInvites().complete();

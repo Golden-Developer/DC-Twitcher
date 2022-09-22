@@ -28,8 +28,9 @@ public class Discord {
     public static String cmdSettings = "settings";
     public static String cmdSettingsSubRole = "twitch-info-role";
     public static String cmdSettingsSubTwitchChannel = "twitch-info-channel";
+    public static String cmdSettingsSubTwitchChannelOptionAction = "action";
     public static String cmdSettingsSubTwitchChannelOptionName = "channelname";
-    public static String cmdSettingsSubChannel = "discord-info-channel";
+    public static String cmdSettingsSubChannel = "discord-notify-channel";
     public static String cmdSettingsSubChannelOptionChannel = "channel";
     public static String cmdSettingsSubRoleOptionRole = "role";
 
@@ -67,11 +68,15 @@ public class Discord {
     }
 
     public void registerCommands() {
-        bot.upsertCommand(cmdSettings, "Stellt den " + bot.getSelfUser().getName() + " ein!" )
+        bot.upsertCommand("twitch-channel", "Füge die Benachrichtigung eines Tw")
                 .addSubcommands(
-                        new SubcommandData(cmdSettingsSubChannel, "Setzte den Info Channel für deine Twitch Live Streams").addOption(OptionType.CHANNEL, cmdSettingsSubChannelOptionChannel,"Twitch Benachrichtigung Channel", true),
-                        new SubcommandData(cmdSettingsSubTwitchChannel, "Speichert deinen Twitch Channel Namen").addOption(OptionType.STRING, cmdSettingsSubTwitchChannelOptionName,"Twitch Channel Name", true),
-                        new SubcommandData(cmdSettingsSubRole, "Setzt die Rolle für die Stream Benachrichtigung").addOption(OptionType.ROLE, cmdSettingsSubRoleOptionRole, "Twitch Info Rolle", true)
+                        new SubcommandData("add", "Setzte den Info Channel für deine Twitch Live Streams")
+                                .addOption(OptionType.CHANNEL, "DiscordChannel", "Hier bitte den Discord Benachrichtigung´s Channel angeben!", true)
+                                .addOption(OptionType.ROLE, "DiscordRole", "Hier bitte die Discord Benachrichtigung´s Rolle angeben!", true)
+                                .addOption(OptionType.STRING, "TwitchChannel", "Hier bitte den Twitch Benachrichtigung´s Channel angeben!", true),
+
+                        new SubcommandData("remove", "Entferne einen Twitch Channel von deinem Discord Server!")
+                                .addOption(OptionType.STRING, "TwitchChannel", "Hier bitte den Twitch Benachrichtigung´s Channel angeben!", true)
                 ).queue();
         bot.upsertCommand(cmdShutdown, "Fährt den Discord Bot herunter!").queue();
         bot.upsertCommand(cmdRestart, "Startet den Discord Bot neu!").queue();

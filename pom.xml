@@ -113,7 +113,7 @@
         <dependency>
             <groupId>com.github.twitch4j</groupId>
             <artifactId>twitch4j</artifactId>
-            <version>1.9.0</version>
+            <version>1.12.0</version>
         </dependency>
         <dependency>
             <groupId>net.dv8tion</groupId>
@@ -126,9 +126,9 @@
             <version>0.8.0</version>
         </dependency>
         <dependency>
-            <groupId>com.github.golden-developer</groupId>
+            <groupId>com.github.Golden-Developer</groupId>
             <artifactId>MYSQL-Api</artifactId>
-            <version>3.8</version>
+            <version>4.3</version>
         </dependency>
     </dependencies>
 </project>

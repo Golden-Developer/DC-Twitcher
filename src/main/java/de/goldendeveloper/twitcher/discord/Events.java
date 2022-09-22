@@ -3,31 +3,27 @@ package de.goldendeveloper.twitcher.discord;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
+import de.goldendeveloper.mysql.entities.Row;
 import de.goldendeveloper.mysql.entities.RowBuilder;
 import de.goldendeveloper.mysql.entities.SearchResult;
 import de.goldendeveloper.mysql.entities.Table;
 import de.goldendeveloper.twitcher.Main;
 import de.goldendeveloper.twitcher.mysql.MysqlConnection;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
-import java.awt.*;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 
 public class Events extends ListenerAdapter {
@@ -65,101 +61,33 @@ public class Events extends ListenerAdapter {
         User _Coho04_ = e.getJDA().getUserById("513306244371447828");
         User zRazzer = e.getJDA().getUserById("428811057700536331");
         if (e.isFromGuild()) {
-            if (cmd.equalsIgnoreCase(Discord.cmdSettings)) {
-                String subCmd = e.getSubcommandName();
-                if (subCmd != null) {
-                    if (subCmd.equalsIgnoreCase(Discord.cmdSettingsSubRole)) {
-                        OptionMapping mapping = e.getOption(Discord.cmdSettingsSubRoleOptionRole);
-                        if (mapping != null) {
-                            Role role = mapping.getAsRole();
-                            if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
-                                if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
-                                    Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
-                                    if (table.existsColumn(MysqlConnection.colmDcServer)) {
-                                        if (!table.getColumn(MysqlConnection.colmDcServer).getAll().contains(e.getGuild().getId())) {
-                                            table.insert(new RowBuilder()
-                                                    .with(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId())
-                                                    .with(table.getColumn(MysqlConnection.colmDcStreamNotifyChannel), "")
-                                                    .with(table.getColumn(MysqlConnection.colmDcStreamNotifyRole), role.getId())
-                                                    .with(table.getColumn(MysqlConnection.colmTwitchChannel), "")
-                                                    .build()
-                                            );
-                                            isAvailable(e, "Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!");
-                                        } else {
-                                            HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId()).get();
-                                            if (row.containsKey(MysqlConnection.colmDcStreamNotifyRole) && !row.get(MysqlConnection.colmDcStreamNotifyRole).getAsString().isEmpty()) {
-                                                table.getRow(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId()).set(table.getColumn(MysqlConnection.colmDcStreamNotifyRole), role.getId());
-                                                isAvailable(e, "Die neue Stream Info Rolle ist nun " + role.getAsMention() + "!");
-                                            } else {
-                                                e.getInteraction().reply("Die neue Stream Info Rolle kann nicht die alte Stream Info Rolle sein!").queue();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+            if (cmd.equalsIgnoreCase("twitch-channel")) {
+                if (e.getSubcommandName().equalsIgnoreCase("add")) {
+                    TextChannel DiscordChannel = e.getOption("DiscordChannel").getAsTextChannel();
+                    String TwitchChannel = e.getOption("TwitchChannel").getAsString();
+                    Role DiscordRole = e.getOption("DiscordRole").getAsRole();
+
+                    if (DiscordChannel != null && DiscordRole != null && !TwitchChannel.isEmpty()) {
+                        Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
+                        if (!isInDatabase(DiscordChannel, DiscordRole, TwitchChannel, e.getGuild(), table)) {
+                            table.insert(
+                                    new RowBuilder()
+                                            .with(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId())
+                                            .with(table.getColumn(MysqlConnection.colmDcStreamNotifyRole), DiscordRole.getId())
+                                            .with(table.getColumn(MysqlConnection.colmTwitchChannel), TwitchChannel)
+                                            .with(table.getColumn(MysqlConnection.colmDcStreamNotifyChannel), DiscordChannel.getId())
+                                            .build()
+                            );
                         }
-                    } else if (subCmd.equalsIgnoreCase(Discord.cmdSettingsSubChannel)) {
-                        OptionMapping mapping = e.getOption(Discord.cmdSettingsSubChannelOptionChannel);
-                        if (mapping != null) {
-                            TextChannel channel = mapping.getAsTextChannel();
-                            if (channel != null) {
-                                if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
-                                    if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
-                                        Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
-                                        if (table.existsColumn(MysqlConnection.colmDcServer)) {
-                                            if (!table.getColumn(MysqlConnection.colmDcServer).getAll().contains(e.getGuild().getId())) {
-                                                table.insert(new RowBuilder()
-                                                        .with(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId())
-                                                        .with(table.getColumn(MysqlConnection.colmDcStreamNotifyChannel), channel.getId())
-                                                        .with(table.getColumn(MysqlConnection.colmDcStreamNotifyRole), "")
-                                                        .with(table.getColumn(MysqlConnection.colmTwitchChannel), "")
-                                                        .build()
-                                                );
-                                                isAvailable(e, "Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!");
-                                            } else {
-                                                HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId()).get();
-                                                if (row.containsKey(MysqlConnection.colmDcStreamNotifyChannel) && !row.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString().isEmpty()) {
-                                                    table.getRow(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId()).set(table.getColumn(MysqlConnection.colmDcStreamNotifyChannel), channel.getId());
-                                                    isAvailable(e, "Der neue Stream Info Channel ist nun " + channel.getAsMention() + "!");
-                                                } else {
-                                                    e.getInteraction().reply("Der neue Stream Info Channel kann nicht der alte Stream Info Channel sein!").queue();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else if (subCmd.equalsIgnoreCase(Discord.cmdSettingsSubTwitchChannel)) {
-                        OptionMapping mapping = e.getOption(Discord.cmdSettingsSubTwitchChannel);
-                        if (mapping != null) {
-                            String TwChannel = mapping.getAsString();
-                            if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
-                                if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
-                                    Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
-                                    if (table.existsColumn(MysqlConnection.colmDcServer)) {
-                                        if (!table.getColumn(MysqlConnection.colmDcServer).getAll().contains(e.getGuild().getId())) {
-                                            table.insert(new RowBuilder()
-                                                    .with(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId())
-                                                    .with(table.getColumn(MysqlConnection.colmDcStreamNotifyChannel), "")
-                                                    .with(table.getColumn(MysqlConnection.colmDcStreamNotifyRole), "")
-                                                    .with(table.getColumn(MysqlConnection.colmTwitchChannel), TwChannel)
-                                                    .build()
-                                            );
-                                            isAvailable(e, "Der neue Twitch Channel ist nun " + TwChannel + "!");
-                                        } else {
-                                            HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId()).get();
-                                            if (row.containsKey(MysqlConnection.colmTwitchChannel) && !row.get(MysqlConnection.colmTwitchChannel).getAsString().isEmpty()) {
-                                                table.getRow(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId()).set(table.getColumn(MysqlConnection.colmTwitchChannel), TwChannel);
-                                                isAvailable(e, "Der neue Twitch Channel ist nun " + TwChannel + "!");
-                                            } else {
-                                                e.getInteraction().reply("Der neue Twitch Channel kann nicht der alte Twitch Channel sein!").queue();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        Main.getTwitch().addChannel(TwitchChannel);
+                    }
+
+
+                } else if (e.getSubcommandName().equalsIgnoreCase("remove")) {
+                    Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
+                    String twitchChannel = e.getOption("TwitchChannel").getAsString();
+                    for (Row row : getRowsWithTwitchChannel(table, twitchChannel)) {
+                        table.dropRow(row.get().get("id").getAsInt());
                     }
                 }
             }
@@ -205,7 +133,7 @@ public class Events extends ListenerAdapter {
             if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
                 Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                 if (table.existsColumn(MysqlConnection.colmDcServer)) {
-                    if (table.getColumn(MysqlConnection.colmDcServer).getAll().contains(e.getGuild().getId())) {
+                    if (table.getColumn(MysqlConnection.colmDcServer).getAll().getAsString().contains(e.getGuild().getId())) {
                         HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId()).get();
                         if (row.containsKey(MysqlConnection.colmTwitchChannel) && row.containsKey(MysqlConnection.colmDcStreamNotifyRole) && row.containsKey(MysqlConnection.colmDcStreamNotifyChannel) && row.containsKey(MysqlConnection.colmTwitchChannel)) {
                             String TwChannel = row.get(MysqlConnection.colmTwitchChannel).getAsString();
@@ -241,5 +169,63 @@ public class Events extends ListenerAdapter {
                 }
             }
         }
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent e) {
+        if (e.getName().equalsIgnoreCase(Discord.cmdSettings)) {
+            if (e.getSubcommandName().equalsIgnoreCase(Discord.cmdSettingsSubTwitchChannel)) {
+                if (e.getFocusedOption().getName().equalsIgnoreCase(Discord.cmdSettingsSubTwitchChannelOptionAction)) {
+                    e.replyChoices(
+                            new Command.Choice("hinzufügen", "add"),
+                            new Command.Choice("entfernen", "remove")
+                    ).queue();
+                } else if (e.getFocusedOption().getName().equalsIgnoreCase(Discord.cmdSettingsSubTwitchChannelOptionAction) && e.getOption(Discord.cmdSettingsSubTwitchChannelOptionAction) != null && e.getOption(Discord.cmdSettingsSubTwitchChannelOptionAction).getAsString().equalsIgnoreCase("remove")) {
+                    List<String> channels = getGuildTwitchChannel(e.getGuild());
+                    List<Command.Choice> collection = new ArrayList<>();
+                    for (String channel : channels) {
+                        collection.add(new Command.Choice(channel, channel));
+                    }
+                    e.replyChoices(collection).queue();
+                }
+            }
+        }
+    }
+
+    public List<String> getGuildTwitchChannel(Guild guild) {
+        Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
+        List<String> channels = new ArrayList<>();
+        for (Row row : table.getRows()) {
+            HashMap<String, SearchResult> sr = row.get();
+            if (sr.get(MysqlConnection.colmDcServer).getAsString().equalsIgnoreCase(guild.getId())) {
+                String channel = sr.get(MysqlConnection.colmTwitchChannel).getAsString();
+                channels.add(channel);
+            }
+        }
+        return channels;
+    }
+
+    public List<Row> getRowsWithTwitchChannel(Table table, String channel) {
+        List<Row> rows = new ArrayList<>();
+        for (Row row : table.getRows()) {
+            if (row.get().get(MysqlConnection.colmTwitchChannel).getAsString().equalsIgnoreCase(channel)) {
+                rows.add(row);
+            }
+        }
+        return rows;
+    }
+
+    public Boolean isInDatabase(TextChannel channel, Role role, String TwitchChannel, Guild guild, Table table) {
+        for (Row r : table.getRows()) {
+            HashMap<String, SearchResult> sr = r.get();
+            boolean channelExists = sr.get(MysqlConnection.colmDcServer).getAsString().equalsIgnoreCase(guild.getId());
+            boolean roleExists = sr.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString().equalsIgnoreCase(channel.getId());
+            boolean twitchExists = sr.get(MysqlConnection.colmDcStreamNotifyRole).getAsString().equalsIgnoreCase(role.getId());
+            boolean guildExists = sr.get(MysqlConnection.colmTwitchChannel).getAsString().equalsIgnoreCase(TwitchChannel);
+            if (channelExists && roleExists && twitchExists && guildExists) {
+                return true;
+            }
+        }
+        return false;
     }
 }

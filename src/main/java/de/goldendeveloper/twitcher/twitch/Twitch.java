@@ -39,7 +39,7 @@ public class Twitch {
             if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
                 Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                 if (table.existsColumn(MysqlConnection.colmDcServer)) {
-                    for (Object obj : table.getColumn(MysqlConnection.colmDcServer).getAll()) {
+                    for (String obj : table.getColumn(MysqlConnection.colmDcServer).getAll().getAsString()) {
                         HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), obj.toString()).get();
                         if (row.containsKey(MysqlConnection.colmTwitchChannel) && row.containsKey(MysqlConnection.colmDcStreamNotifyRole) && row.containsKey(MysqlConnection.colmDcStreamNotifyChannel) && row.containsKey(MysqlConnection.colmTwitchChannel)) {
                             String TwChannel = row.get(MysqlConnection.colmTwitchChannel).getAsString();
