@@ -11,16 +11,18 @@ import de.goldendeveloper.twitcher.Main;
 import de.goldendeveloper.twitcher.mysql.MysqlConnection;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.*;
@@ -61,12 +63,13 @@ public class Events extends ListenerAdapter {
         User _Coho04_ = e.getJDA().getUserById("513306244371447828");
         User zRazzer = e.getJDA().getUserById("428811057700536331");
         if (e.isFromGuild()) {
-            if (cmd.equalsIgnoreCase("twitch-channel")) {
-                if (e.getSubcommandName().equalsIgnoreCase("add")) {
-                    TextChannel DiscordChannel = e.getOption("DiscordChannel").getAsTextChannel();
-                    String TwitchChannel = e.getOption("TwitchChannel").getAsString();
-                    Role DiscordRole = e.getOption("DiscordRole").getAsRole();
-
+            if (cmd.equalsIgnoreCase(Discord.cmdTwitchChannel)) {
+                e.deferReply(true).queue();
+                InteractionHook hook = e.getHook().setEphemeral(false);
+                if (e.getSubcommandName().equalsIgnoreCase(Discord.cmdTwitchChannelAdd)) {
+                    Channel DiscordChannel = e.getOption(Discord.DiscordChannel).getAsChannel();
+                    String TwitchChannel = e.getOption(Discord.TwitchChannel).getAsString();
+                    Role DiscordRole = e.getOption(Discord.DiscordRole).getAsRole();
                     if (DiscordChannel != null && DiscordRole != null && !TwitchChannel.isEmpty()) {
                         Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                         if (!isInDatabase(DiscordChannel, DiscordRole, TwitchChannel, e.getGuild(), table)) {
@@ -78,17 +81,21 @@ public class Events extends ListenerAdapter {
                                             .with(table.getColumn(MysqlConnection.colmDcStreamNotifyChannel), DiscordChannel.getId())
                                             .build()
                             );
+                            hook.sendMessage("Der Twitch Channel wurde erfolgreich hinzugefügt!").queue();
+                        } else {
+                            hook.sendMessage("Der Twitch Channel existiert bereits!").queue();
                         }
                         Main.getTwitch().addChannel(TwitchChannel);
+                    } else {
+                        hook.sendMessage("ERROR: Etwas ist schief gelaufen wir konnten deine Angaben nicht erfassen!").queue();
                     }
-
-
-                } else if (e.getSubcommandName().equalsIgnoreCase("remove")) {
+                } else if (e.getSubcommandName().equalsIgnoreCase(Discord.cmdTwitchChannelRemove)) {
                     Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
-                    String twitchChannel = e.getOption("TwitchChannel").getAsString();
+                    String twitchChannel = e.getOption(Discord.TwitchChannel).getAsString();
                     for (Row row : getRowsWithTwitchChannel(table, twitchChannel)) {
                         table.dropRow(row.get().get("id").getAsInt());
                     }
+                    hook.sendMessage("Der Twitch Channel wurde erfolgreich von dem Discord Server entfernt!").queue();
                 }
             }
         }
@@ -124,49 +131,6 @@ public class Events extends ListenerAdapter {
                 }
             } else {
                 e.getInteraction().reply("Dazu hast du keine Rechte du musst für diesen Befehl der Bot inhaber sein!").queue();
-            }
-        }
-    }
-
-    public void isAvailable(SlashCommandInteractionEvent e, @Nullable String success) {
-        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
-            if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
-                Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
-                if (table.existsColumn(MysqlConnection.colmDcServer)) {
-                    if (table.getColumn(MysqlConnection.colmDcServer).getAll().getAsString().contains(e.getGuild().getId())) {
-                        HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), e.getGuild().getId()).get();
-                        if (row.containsKey(MysqlConnection.colmTwitchChannel) && row.containsKey(MysqlConnection.colmDcStreamNotifyRole) && row.containsKey(MysqlConnection.colmDcStreamNotifyChannel) && row.containsKey(MysqlConnection.colmTwitchChannel)) {
-                            String TwChannel = row.get(MysqlConnection.colmTwitchChannel).getAsString();
-                            String DcChannel = row.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString();
-                            String DcRole = row.get(MysqlConnection.colmDcStreamNotifyRole).getAsString();
-                            if (!TwChannel.isEmpty()) {
-                                if (!DcChannel.isEmpty()) {
-                                    if (!DcRole.isEmpty()) {
-                                        Main.getTwitch().addChannel(TwChannel);
-                                    } else {
-                                        if (success != null) {
-                                            e.getInteraction().reply(success + "\nDie Stream Info Rolle fehlt bitte setzte eine mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubRole + "!").queue();
-                                        } else {
-                                            e.getInteraction().reply("Die Stream Info Rolle fehlt bitte setzte eine mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubRole + "!").queue();
-                                        }
-                                    }
-                                } else {
-                                    if (success != null) {
-                                        e.getInteraction().reply(success + "\nDer Stream Info Channel fehlt bitte setzte einen mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubChannel + "!").queue();
-                                    } else {
-                                        e.getInteraction().reply("Der Stream Info Channel fehlt bitte setzte einen mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubChannel + "!").queue();
-                                    }
-                                }
-                            } else {
-                                if (success != null) {
-                                    e.getInteraction().reply(success + "\nDer Twitch Channel fehlt bitte setzte einen mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubTwitchChannel + "!").queue();
-                                } else {
-                                    e.getInteraction().reply("Der Twitch Channel fehlt bitte setzte einen mit /" + Discord.cmdSettings + " " + Discord.cmdSettingsSubTwitchChannel + "!").queue();
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
     }
@@ -215,7 +179,7 @@ public class Events extends ListenerAdapter {
         return rows;
     }
 
-    public Boolean isInDatabase(TextChannel channel, Role role, String TwitchChannel, Guild guild, Table table) {
+    public Boolean isInDatabase(Channel channel, Role role, String TwitchChannel, Guild guild, Table table) {
         for (Row r : table.getRows()) {
             HashMap<String, SearchResult> sr = r.get();
             boolean channelExists = sr.get(MysqlConnection.colmDcServer).getAsString().equalsIgnoreCase(guild.getId());

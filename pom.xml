@@ -118,15 +118,15 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.12</version>
+            <version>5.0.0-alpha.20</version>
         </dependency>
         <dependency>
             <groupId>club.minnced</groupId>
             <artifactId>discord-webhooks</artifactId>
-            <version>0.8.0</version>
+            <version>0.8.2</version>
         </dependency>
         <dependency>
-            <groupId>com.github.Golden-Developer</groupId>
+            <groupId>com.github.golden-developer</groupId>
             <artifactId>MYSQL-Api</artifactId>
             <version>4.3</version>
         </dependency>

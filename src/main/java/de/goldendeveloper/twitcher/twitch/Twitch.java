@@ -57,7 +57,7 @@ public class Twitch {
                 }
             }
         }
-        System.out.println("Twitch gestartet");
+        System.out.println("[GD-Twitcher]: Twitch gestartet");
     }
 
     public void addChannel(String channel) {
