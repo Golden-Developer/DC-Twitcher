@@ -4,6 +4,7 @@ import de.goldendeveloper.mysql.MYSQL;
 import de.goldendeveloper.mysql.entities.Database;
 import de.goldendeveloper.mysql.entities.MysqlTypes;
 import de.goldendeveloper.mysql.entities.Table;
+import de.goldendeveloper.twitcher.Main;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,7 @@ public class MysqlConnection {
                 table.addColumn(column);
             }
         }
-        System.out.println("[GD-Twitcher] Mysql Finished");
+        System.out.println("[" + Main.getConfig().getProjektName() +  "] Mysql Finished");
     }
 
     public MYSQL getMysql() {

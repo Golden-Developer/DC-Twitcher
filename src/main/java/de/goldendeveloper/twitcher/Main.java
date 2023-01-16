@@ -10,6 +10,7 @@ public class Main {
     private static Twitch twitch;
     private static MysqlConnection mysqlConnection;
     private static Config config;
+    private static ServerCommunicator serverCommunicator;
 
     private static Boolean restart = false;
     private static Boolean deployment = true;
@@ -18,10 +19,12 @@ public class Main {
         if (args.length >= 1 && args[0].equalsIgnoreCase("restart")) {
             restart = true;
         }
-        if (System.getProperty("os.name").split(" ")[0].equalsIgnoreCase("windows")) {
+        String device = System.getProperty("os.name").split(" ")[0];
+        if (device.equalsIgnoreCase("windows") || device.equalsIgnoreCase("Mac")) {
             deployment = false;
         }
         config = new Config();
+        serverCommunicator = new ServerCommunicator(getConfig().getServerHostname(), getConfig().getServerPort());
         mysqlConnection = new MysqlConnection(config.getMysqlHostname(), config.getMysqlPort(), config.getMysqlUsername(), config.getMysqlPassword());
         discord = new Discord(config.getDiscordToken());
         twitch = new Twitch();
@@ -49,5 +52,9 @@ public class Main {
 
     public static Config getConfig() {
         return config;
+    }
+
+    public static ServerCommunicator getServerCommunicator() {
+        return serverCommunicator;
     }
 }

@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
 public class Config {
 
@@ -27,6 +28,9 @@ public class Config {
     private String TwitchCredinal;
     private int MysqlPort;
 
+    private String ServerHostname;
+    private int ServerPort;
+
     public Config() {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         InputStream local = classloader.getResourceAsStream("Login.xml");
@@ -34,7 +38,7 @@ public class Config {
             if (local != null && local.available() >= 1) {
                 readXML(local);
             } else {
-                File file = new File("/home/Golden-Developer/JavaBots/GD-Twitcher/config/Login.xml");
+                File file = new File("/home/Golden-Developer/JavaBots/" + getProjektName() + "/config/Login.xml");
                 InputStream targetStream = new FileInputStream(file);
                 readXML(targetStream);
             }
@@ -111,9 +115,39 @@ public class Config {
                     }
                 }
             }
+
+            // Server
+            String hostname = doc.getElementsByTagName("Hostname").item(1).getTextContent();
+            String port = doc.getElementsByTagName("Port").item(1).getTextContent();
+            if (!hostname.isEmpty() || !hostname.isBlank()) {
+                this.ServerHostname = hostname;
+            }
+            if (!port.isEmpty() || !port.isBlank()) {
+                this.ServerPort = Integer.parseInt(port);
+            }
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getProjektVersion() {
+        Properties properties = new Properties();
+        try {
+            properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return properties.getProperty("version");
+    }
+
+    public String getProjektName() {
+        Properties properties = new Properties();
+        try {
+            properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return properties.getProperty("name");
     }
 
     public String getDiscordWebhook() {
@@ -146,6 +180,14 @@ public class Config {
 
     public String getTwitchClientSecret() {
         return TwitchClientSecret;
+    }
+
+    public int getServerPort() {
+        return ServerPort;
+    }
+
+    public String getServerHostname() {
+        return ServerHostname;
     }
 
     public String getTwitchCredinal() {

@@ -14,4 +14,8 @@
         <ClientSecret>CLIENTSCRET</ClientSecret>
         <Credinal>CREDINAL</Credinal>
     </Twitch>
+    <Server>
+        <Hostname>HOSTNAME</Hostname>
+        <Port>PORT</Port>
+    </Server>
 </login>
