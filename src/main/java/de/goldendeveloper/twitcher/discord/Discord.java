@@ -64,7 +64,7 @@ public class Discord {
             e.printStackTrace();
         }
         this.EmbedColor = new Color(100, 65, 164);
-        System.out.println("[GD-Twitcher]: Discord gestartet!");
+        System.out.println("[" + Main.getConfig().getProjektName() + "]: Discord gestartet!");
     }
 
     public void registerCommands() {
