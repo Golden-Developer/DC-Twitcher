@@ -35,7 +35,7 @@ public class TwitchEventHandler {
                             if (channel.getType().equals(ChannelType.TEXT)) {
                                 TextChannel textChannel = Main.getDiscord().getBot().getTextChannelById(channel.getId());
                                 if (textChannel != null) {
-                                    textChannel.sendMessage(role.getAsMention() + twChannel + " ist nun Live auf Twitch!")
+                                    textChannel.sendMessage(role.getAsMention() + " " + twChannel + " ist nun Live auf Twitch!")
                                             .setEmbeds(sendTwitchNotifyEmbed(e.getStream().getTitle(), e.getChannel().getName(), e.getStream().getGameName(), e.getStream().getViewerCount()))
                                             .queue();
                                 }
@@ -57,7 +57,7 @@ public class TwitchEventHandler {
     public static HashMap<Channel, Role> getMessageChannel(Table table, String TwitchName) {
         HashMap<Channel, Role> channels = new HashMap<>();
         for (Row row : table.getRows()) {
-            HashMap<String, SearchResult> sr = row.get();
+            HashMap<String, SearchResult> sr = row.getData();
             if (sr.get(MysqlConnection.colmTwitchChannel).getAsString().equalsIgnoreCase(TwitchName)) {
                 if (!sr.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString().equalsIgnoreCase("0")) {
                     Channel channel = Main.getDiscord().getBot().getGuildChannelById(sr.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString());
@@ -106,7 +106,7 @@ public class TwitchEventHandler {
     private String sendDiscordInvite(String channel) {
         Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
         if (table.getColumn(MysqlConnection.colmTwitchChannel).getAll().getAsString().contains(channel)) {
-            HashMap<String, SearchResult> row = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName).getRow(table.getColumn(MysqlConnection.colmTwitchChannel), channel).get();
+            HashMap<String, SearchResult> row = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName).getRow(table.getColumn(MysqlConnection.colmTwitchChannel), channel).getData();
             long DcID = row.get(MysqlConnection.colmDcServer).getAsLong();
             List<Invite> invites = Main.getDiscord().getBot().getGuildById(DcID).retrieveInvites().complete();
             if (getValidInvite(invites) != null) {

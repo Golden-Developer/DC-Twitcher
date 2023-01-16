@@ -40,7 +40,7 @@ public class Twitch {
                 Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                 if (table.existsColumn(MysqlConnection.colmDcServer)) {
                     for (String obj : table.getColumn(MysqlConnection.colmDcServer).getAll().getAsString()) {
-                        HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), obj.toString()).get();
+                        HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), obj.toString()).getData();
                         if (row.containsKey(MysqlConnection.colmTwitchChannel) && row.containsKey(MysqlConnection.colmDcStreamNotifyRole) && row.containsKey(MysqlConnection.colmDcStreamNotifyChannel) && row.containsKey(MysqlConnection.colmTwitchChannel)) {
                             String TwChannel = row.get(MysqlConnection.colmTwitchChannel).getAsString();
                             String DcChannel = row.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString();
@@ -57,7 +57,7 @@ public class Twitch {
                 }
             }
         }
-        System.out.println("[GD-Twitcher]: Twitch gestartet");
+        System.out.println("[" + Main.getConfig().getProjektName()  + "]: Twitch gestartet");
     }
 
     public void addChannel(String channel) {

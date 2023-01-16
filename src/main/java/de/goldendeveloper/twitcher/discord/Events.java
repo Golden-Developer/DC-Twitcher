@@ -94,7 +94,7 @@ public class Events extends ListenerAdapter {
                     Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
                     String twitchChannel = e.getOption(Discord.TwitchChannel).getAsString();
                     for (Row row : getRowsWithTwitchChannel(table, twitchChannel)) {
-                        table.dropRow(row.get().get("id").getAsInt());
+                        row.drop();
                     }
                     hook.sendMessage("Der Twitch Channel wurde erfolgreich von dem Discord Server entfernt!").queue();
                 }
@@ -161,7 +161,7 @@ public class Events extends ListenerAdapter {
         Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
         List<String> channels = new ArrayList<>();
         for (Row row : table.getRows()) {
-            HashMap<String, SearchResult> sr = row.get();
+            HashMap<String, SearchResult> sr = row.getData();
             if (sr.get(MysqlConnection.colmDcServer).getAsString().equalsIgnoreCase(guild.getId())) {
                 String channel = sr.get(MysqlConnection.colmTwitchChannel).getAsString();
                 channels.add(channel);
@@ -173,7 +173,7 @@ public class Events extends ListenerAdapter {
     public List<Row> getRowsWithTwitchChannel(Table table, String channel) {
         List<Row> rows = new ArrayList<>();
         for (Row row : table.getRows()) {
-            if (row.get().get(MysqlConnection.colmTwitchChannel).getAsString().equalsIgnoreCase(channel)) {
+            if (row.getData().get(MysqlConnection.colmTwitchChannel).getAsString().equalsIgnoreCase(channel)) {
                 rows.add(row);
             }
         }
@@ -182,7 +182,7 @@ public class Events extends ListenerAdapter {
 
     public Boolean isInDatabase(Channel channel, Role role, String TwitchChannel, Guild guild, Table table) {
         for (Row r : table.getRows()) {
-            HashMap<String, SearchResult> sr = r.get();
+            HashMap<String, SearchResult> sr = r.getData();
             boolean channelExists = sr.get(MysqlConnection.colmDcServer).getAsString().equalsIgnoreCase(guild.getId());
             boolean roleExists = sr.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString().equalsIgnoreCase(channel.getId());
             boolean twitchExists = sr.get(MysqlConnection.colmDcStreamNotifyRole).getAsString().equalsIgnoreCase(role.getId());
