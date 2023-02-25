@@ -125,5 +125,10 @@
             <artifactId>MYSQL-Api</artifactId>
             <version>5.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20220924</version>
+        </dependency>
     </dependencies>
 </project>
