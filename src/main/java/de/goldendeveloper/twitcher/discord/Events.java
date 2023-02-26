@@ -9,6 +9,7 @@ import de.goldendeveloper.mysql.entities.SearchResult;
 import de.goldendeveloper.mysql.entities.Table;
 import de.goldendeveloper.twitcher.Main;
 import de.goldendeveloper.twitcher.mysql.MysqlConnection;
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
@@ -128,6 +129,7 @@ public class Events extends ListenerAdapter {
                     p.waitFor();
                     e.getJDA().shutdown();
                 } catch (Exception ex) {
+                    Sentry.captureException(ex);
                     ex.printStackTrace();
                 }
             } else {
