@@ -28,6 +28,8 @@ public class Config {
     private String TwitchCredinal;
     private int MysqlPort;
 
+    private String sentryDNS;
+
     private String ServerHostname;
     private int ServerPort;
 
@@ -125,9 +127,17 @@ public class Config {
             if (!port.isEmpty() || !port.isBlank()) {
                 this.ServerPort = Integer.parseInt(port);
             }
+            String sentryDNS = doc.getElementsByTagName("Sentry").item(0).getTextContent();
+            if (!sentryDNS.isEmpty() || !sentryDNS.isBlank()) {
+                this.sentryDNS = sentryDNS;
+            }
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getSentryDNS() {
+        return sentryDNS;
     }
 
     public String getProjektVersion() {

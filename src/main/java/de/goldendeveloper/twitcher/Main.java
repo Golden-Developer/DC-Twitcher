@@ -3,6 +3,7 @@ package de.goldendeveloper.twitcher;
 import de.goldendeveloper.twitcher.discord.Discord;
 import de.goldendeveloper.twitcher.mysql.MysqlConnection;
 import de.goldendeveloper.twitcher.twitch.Twitch;
+import io.sentry.Sentry;
 
 public class Main {
 
@@ -24,11 +25,20 @@ public class Main {
             deployment = false;
         }
         config = new Config();
+        Sentry(config.getSentryDNS());
         serverCommunicator = new ServerCommunicator(getConfig().getServerHostname(), getConfig().getServerPort());
         mysqlConnection = new MysqlConnection(config.getMysqlHostname(), config.getMysqlPort(), config.getMysqlUsername(), config.getMysqlPassword());
         discord = new Discord(config.getDiscordToken());
         twitch = new Twitch();
     }
+
+    public static void Sentry(String dns) {
+        Sentry.init(options -> {
+            options.setDsn(dns);
+            options.setTracesSampleRate(1.0);
+        });
+    }
+
 
     public static Discord getDiscord() {
         return discord;
