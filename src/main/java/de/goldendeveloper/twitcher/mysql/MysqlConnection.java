@@ -13,7 +13,7 @@ public class MysqlConnection {
 
     private final MYSQL mysql;
 
-    public static String dbName = "Twitcher";
+    public static String dbName = "GD-Twitcher";
     public static String tableName = "Twitcher";
 
     public static String colmDcServer = "DiscordServer";
