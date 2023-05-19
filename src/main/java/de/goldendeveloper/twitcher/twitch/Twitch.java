@@ -17,7 +17,7 @@ public class Twitch {
     private TwitchClient twitchClient;
 
     public Twitch() {
-        OAuth2Credential credential = new OAuth2Credential("twitch", Main.getConfig().getTwitchCredinal());
+        OAuth2Credential credential = new OAuth2Credential("twitch", Main.getConfig().getTwitchCredential());
         try {
             twitchClient = TwitchClientBuilder.builder()
                     .withClientId(Main.getConfig().getTwitchClientID())
@@ -35,29 +35,22 @@ public class Twitch {
         }
         twitchClient.getEventManager().getEventHandler(SimpleEventHandler.class).registerListener(new TwitchEventHandler());
 
-        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
-            if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
-                Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
-                if (table.existsColumn(MysqlConnection.colmDcServer)) {
-                    for (String obj : table.getColumn(MysqlConnection.colmDcServer).getAll().getAsString()) {
-                        HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), obj.toString()).getData();
-                        if (row.containsKey(MysqlConnection.colmTwitchChannel) && row.containsKey(MysqlConnection.colmDcStreamNotifyRole) && row.containsKey(MysqlConnection.colmDcStreamNotifyChannel) && row.containsKey(MysqlConnection.colmTwitchChannel)) {
-                            String TwChannel = row.get(MysqlConnection.colmTwitchChannel).getAsString();
-                            String DcChannel = row.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString();
-                            String DcRole = row.get(MysqlConnection.colmDcStreamNotifyRole).getAsString();
-                            if (!TwChannel.isEmpty()) {
-                                if (!DcChannel.isEmpty()) {
-                                    if (!DcRole.isEmpty()) {
-                                        addChannel(TwChannel);
-                                    }
-                                }
-                            }
+        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName) && Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.tableName)) {
+            Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.tableName);
+            if (table.existsColumn(MysqlConnection.colmDcServer)) {
+                for (String obj : table.getColumn(MysqlConnection.colmDcServer).getAll().getAsString()) {
+                    HashMap<String, SearchResult> row = table.getRow(table.getColumn(MysqlConnection.colmDcServer), obj.toString()).getData();
+                    if (row.containsKey(MysqlConnection.colmTwitchChannel) && row.containsKey(MysqlConnection.colmDcStreamNotifyRole) && row.containsKey(MysqlConnection.colmDcStreamNotifyChannel) && row.containsKey(MysqlConnection.colmTwitchChannel)) {
+                        String twChannel = row.get(MysqlConnection.colmTwitchChannel).getAsString();
+                        String dcChannel = row.get(MysqlConnection.colmDcStreamNotifyChannel).getAsString();
+                        String dcRole = row.get(MysqlConnection.colmDcStreamNotifyRole).getAsString();
+                        if (!twChannel.isEmpty() && !dcChannel.isEmpty() && !dcRole.isEmpty()) {
+                            addChannel(twChannel);
                         }
                     }
                 }
             }
         }
-        System.out.println("[" + Main.getConfig().getProjektName()  + "]: Twitch gestartet");
     }
 
     public void addChannel(String channel) {

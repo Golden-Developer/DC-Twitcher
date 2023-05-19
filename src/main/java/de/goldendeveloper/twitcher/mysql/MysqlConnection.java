@@ -35,11 +35,11 @@ public class MysqlConnection {
         l.add(colmDcServer);
         l.add(colmDcStreamNotifyRole);
         l.add(colmTwitchChannel);
-        for (String column : l) {
+        l.forEach(column -> {
             if (!table.existsColumn(column)) {
                 table.addColumn(column);
             }
-        }
+        });
         System.out.println("[" + Main.getConfig().getProjektName() +  "] Mysql Finished");
     }
 
