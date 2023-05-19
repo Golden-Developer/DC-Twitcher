@@ -3,6 +3,7 @@ package de.goldendeveloper.twitcher.mysql;
 import de.goldendeveloper.mysql.MYSQL;
 import de.goldendeveloper.mysql.entities.Database;
 import de.goldendeveloper.mysql.entities.Table;
+import de.goldendeveloper.mysql.errors.ExceptionHandler;
 import de.goldendeveloper.twitcher.Main;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ public class MysqlConnection {
 
     private final MYSQL mysql;
 
-    public static String dbName = "Twitcher";
+    public static String dbName = "GD-Twitcher";
     public static String tableName = "Twitcher";
 
     public static String colmDcServer = "DiscordServer";
@@ -21,7 +22,7 @@ public class MysqlConnection {
     public static String colmTwitchChannel = "TwitchChannel";
 
     public MysqlConnection(String hostname, int port, String username, String password) {
-        mysql = new MYSQL(hostname, username, password, port);
+        mysql = new MYSQL(hostname, username, password, port, new ExceptionHandler());
         if (!mysql.existsDatabase(dbName)) {
             mysql.createDatabase(dbName);
         }

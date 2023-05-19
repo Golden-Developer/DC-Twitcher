@@ -9,6 +9,7 @@ import de.goldendeveloper.mysql.entities.Table;
 import de.goldendeveloper.twitcher.Main;
 import de.goldendeveloper.twitcher.mysql.MysqlConnection;
 import de.goldendeveloper.twitcher.twitch.events.TwitchEventHandler;
+import io.sentry.Sentry;
 
 import java.util.HashMap;
 
@@ -31,6 +32,7 @@ public class Twitch {
                     .withEnableHelix(true)
                     .build();
         } catch (Exception e) {
+            Sentry.captureException(e);
             e.printStackTrace();
         }
         twitchClient.getEventManager().getEventHandler(SimpleEventHandler.class).registerListener(new TwitchEventHandler());
