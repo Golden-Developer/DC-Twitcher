@@ -8,11 +8,12 @@
     <artifactId>GD-Twitcher</artifactId>
     <version>1.0</version>
 
-    <name>Golden-Developer</name>
+    <name>GD-Twitcher</name>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>20</java.version>
+        <project.source.encoding>UTF-8</project.source.encoding>
+        <project.target.encoding>UTF-8</project.target.encoding>
     </properties>
 
     <build>
@@ -24,18 +25,16 @@
         </resources>
 
         <plugins>
-            <!-- Compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>16</source>
-                    <target>16</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
 
-            <!-- Shade Jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -64,7 +63,6 @@
                 </executions>
             </plugin>
 
-            <!-- Build Jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -78,7 +76,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Deploy -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
