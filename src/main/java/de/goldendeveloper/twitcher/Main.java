@@ -2,9 +2,12 @@ package de.goldendeveloper.twitcher;
 
 import de.goldendeveloper.dcbcore.DCBot;
 import de.goldendeveloper.dcbcore.DCBotBuilder;
+import de.goldendeveloper.mysql.exceptions.NoConnectionException;
 import de.goldendeveloper.twitcher.discord.CustomEvents;
 import de.goldendeveloper.twitcher.mysql.MysqlConnection;
 import de.goldendeveloper.twitcher.twitch.Twitch;
+
+import java.sql.SQLException;
 
 public class Main {
 
@@ -13,7 +16,7 @@ public class Main {
     private static CustomConfig customConfig;
     private static DCBot dcBot;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoConnectionException, SQLException {
         customConfig = new CustomConfig();
         DCBotBuilder builder = new DCBotBuilder(args, true);
 //        builder.registerCommands();
