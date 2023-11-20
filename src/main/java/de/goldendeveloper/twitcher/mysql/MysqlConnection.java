@@ -4,8 +4,10 @@ import de.goldendeveloper.mysql.MYSQL;
 import de.goldendeveloper.mysql.entities.Database;
 import de.goldendeveloper.mysql.entities.Table;
 import de.goldendeveloper.mysql.errors.ExceptionHandler;
+import de.goldendeveloper.mysql.exceptions.NoConnectionException;
 import de.goldendeveloper.twitcher.Main;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class MysqlConnection {
     public static String colmDcStreamNotifyRole = "DcStreamNotifyRoleID";
     public static String colmTwitchChannel = "TwitchChannel";
 
-    public MysqlConnection(String hostname, int port, String username, String password) {
+    public MysqlConnection(String hostname, int port, String username, String password) throws NoConnectionException, SQLException {
         mysql = new MYSQL(hostname, username, password, port, new ExceptionHandler());
         if (!mysql.existsDatabase(dbName)) {
             mysql.createDatabase(dbName);
