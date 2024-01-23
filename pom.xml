@@ -105,7 +105,7 @@
         <dependency>
             <groupId>com.github.golden-developer</groupId>
             <artifactId>MYSQL-Api</artifactId>
-            <version>5.5</version>
+            <version>5.6</version>
         </dependency>
         <dependency>
             <groupId>de.goldendeveloper</groupId>
